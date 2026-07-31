@@ -22,6 +22,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Math-A-Morphosis");
+        this.primaryStage.setMaximized(true);
 
         rootNode = new StackPane();
         mainScene = new Scene(rootNode, 1280, 720);
@@ -73,6 +74,14 @@ public class Main extends Application {
             content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.RiemannView());
         } else if (moduleId.equals("LINEAR_ALGEBRA")) {
             content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.VectorView());
+        } else if (moduleId.equals("LEAST_SQUARES")) {
+            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.LeastSquaresView());
+        } else if (moduleId.equals("UNIT_CIRCLE")) {
+            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.UnitCircleView());
+        } else if (moduleId.equals("GRAPHING_CALC")) {
+            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.GraphingCalculatorView());
+        } else if (moduleId.equals("FOURIER_SERIES")) {
+            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.FourierSeriesView());
         }
 
         rootNode.getChildren().setAll(moduleLayout);

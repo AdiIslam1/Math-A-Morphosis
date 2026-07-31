@@ -36,8 +36,11 @@ public class Dashboard extends VBox {
         grid.add(createModuleCard("Number Theory", "Sieve of Eratosthenes", () -> onModuleSelected.accept("NUMBER_THEORY")), 0, 0);
         grid.add(createModuleCard("Calculus", "Riemann Sum Convergence", () -> onModuleSelected.accept("CALCULUS")), 1, 0);
         grid.add(createModuleCard("Linear Algebra", "Interactive Vector Projections", () -> onModuleSelected.accept("LINEAR_ALGEBRA")), 0, 1);
-        grid.add(createModuleCard("Statistics", "Central Limit Theorem (Coming Soon)", () -> {}), 1, 1);
-
+        grid.add(createModuleCard("Statistics", "Least Squares Regression Sandbox", () -> onModuleSelected.accept("LEAST_SQUARES")), 1, 1);
+        grid.add(createModuleCard("Trigonometry", "Unit Circle Unroller", () -> onModuleSelected.accept("UNIT_CIRCLE")), 0, 2);
+        grid.add(createModuleCard("Algebra", "2D Graphing Calculator", () -> onModuleSelected.accept("GRAPHING_CALC")), 1, 2);
+        grid.add(createModuleCard("Signal Processing", "Fourier Series Epicycles", () -> onModuleSelected.accept("FOURIER_SERIES")), 0, 3);
+        
         this.getChildren().addAll(header, grid);
     }
 
