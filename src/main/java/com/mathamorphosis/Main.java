@@ -10,6 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
 
@@ -63,6 +64,10 @@ public class Main extends Application {
         // Module content placeholder
         VBox content = new VBox();
         content.setAlignment(Pos.CENTER);
+        Rectangle contentClip = new Rectangle();
+        contentClip.widthProperty().bind(content.widthProperty());
+        contentClip.heightProperty().bind(content.heightProperty());
+        content.setClip(contentClip);
         Label placeholder = new Label("Loading " + moduleId + "...");
         placeholder.getStyleClass().add("header-text");
         content.getChildren().add(placeholder);

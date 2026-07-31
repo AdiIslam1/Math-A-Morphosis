@@ -50,8 +50,8 @@ public class FourierSeriesView extends StackPane {
 
     private AnimationTimer timer;
 
-    private double WIDTH = 1920;
-    private double HEIGHT = 1080;
+    private double WIDTH = 1000;
+    private double HEIGHT = 600;
 
     private final Text infoText = new Text();
 
