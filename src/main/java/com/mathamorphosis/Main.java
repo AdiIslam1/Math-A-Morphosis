@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -81,7 +82,11 @@ public class Main extends Application {
         } else if (moduleId.equals("GRAPHING_CALC")) {
             content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.GraphingCalculatorView());
         } else if (moduleId.equals("FOURIER_SERIES")) {
-            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.FourierSeriesView());
+            com.mathamorphosis.ui.visualizations.FourierSeriesView fourierView =
+                    new com.mathamorphosis.ui.visualizations.FourierSeriesView();
+            VBox.setVgrow(fourierView, Priority.ALWAYS);
+            fourierView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            content.getChildren().setAll(fourierView);
         }
 
         rootNode.getChildren().setAll(moduleLayout);
