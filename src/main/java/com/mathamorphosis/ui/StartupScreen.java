@@ -25,34 +25,43 @@ public class StartupScreen extends StackPane {
     private GraphicsContext gc;
     private AnimationTimer timer;
     private List<Particle> particles;
-    private final int NUM_PARTICLES = 50;
+    private final int NUM_PARTICLES = 60;
     
     private final String[] SYMBOLS = {"∫", "Σ", "π", "∞", "√", "θ", "Δ"};
     private final Color[] PALETTE = {
-        Color.web("#39ff14"), // Neon Green
-        Color.web("#5ba8e0"), // Neon Blue
-        Color.web("#ffff00"), // Neon Yellow
-        Color.web("#b026ff"), // Neon Purple
-        Color.web("#f97316"), // Neon Orange
-        Color.web("#ff00ff")  // Magenta
+        Color.web("#4cbf95"), // Emerald/Sage Green
+        Color.web("#5ba8e0"), // Sky Blue
+        Color.web("#d4a84b"), // Warm Gold/Amber
+        Color.web("#9b72d4"), // Violet/Purple
+        Color.web("#d46b6b"), // Terracotta/Rose
+        Color.web("#4ab8c4")  // Teal
     };
     private Random random = new Random();
 
     public StartupScreen(Runnable onStart, double width, double height) {
         this.getStyleClass().add("root");
 
-        // 1. Background Animation Canvas
-        canvas = new Canvas(width, height);
+        // 1. Background Animation Canvas bound to container size
+        canvas = new Canvas();
+        canvas.widthProperty().bind(this.widthProperty());
+        canvas.heightProperty().bind(this.heightProperty());
         gc = canvas.getGraphicsContext2D();
+
         particles = new ArrayList<>();
+        double initW = width > 0 ? width : 1280;
+        double initH = height > 0 ? height : 720;
         for (int i = 0; i < NUM_PARTICLES; i++) {
-            particles.add(new Particle(width, height));
+            particles.add(new Particle(initW, initH));
         }
 
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                draw(width, height);
+                double w = canvas.getWidth();
+                double h = canvas.getHeight();
+                if (w > 0 && h > 0) {
+                    draw(w, h);
+                }
             }
         };
         timer.start();
@@ -99,7 +108,7 @@ public class StartupScreen extends StackPane {
     }
 
     private void draw(double width, double height) {
-        gc.setFill(Color.web("#14142a"));
+        gc.setFill(Color.web("#0c0c1e"));
         gc.fillRect(0, 0, width, height);
 
         // Update particles
@@ -117,10 +126,10 @@ public class StartupScreen extends StackPane {
                 double dy = p1.y - p2.y;
                 double dist = Math.sqrt(dx * dx + dy * dy);
 
-                if (dist < 150) {
-                    double alpha = 1.0 - (dist / 150.0);
+                if (dist < 160) {
+                    double alpha = 1.0 - (dist / 160.0);
                     // Create a gradient-like effect using p1's color
-                    gc.setStroke(new Color(p1.color.getRed(), p1.color.getGreen(), p1.color.getBlue(), alpha * 0.6));
+                    gc.setStroke(new Color(p1.color.getRed(), p1.color.getGreen(), p1.color.getBlue(), alpha * 0.5));
                     gc.strokeLine(p1.x, p1.y, p2.x, p2.y);
                 }
             }
@@ -164,9 +173,11 @@ public class StartupScreen extends StackPane {
             x += vx;
             y += vy;
 
-            // Bounce off walls
-            if (x < 0 || x > w) vx = -vx;
-            if (y < 0 || y > h) vy = -vy;
+            // Bounce off walls dynamically
+            if (x < 0) { x = 0; vx = -vx; }
+            if (x > w) { x = w; vx = -vx; }
+            if (y < 0) { y = 0; vy = -vy; }
+            if (y > h) { y = h; vy = -vy; }
         }
     }
 }
