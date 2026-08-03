@@ -92,6 +92,12 @@ public class Main extends Application {
             VBox.setVgrow(fourierView, Priority.ALWAYS);
             fourierView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             content.getChildren().setAll(fourierView);
+        } else if (moduleId.equals("CHAOS_GAME")) {
+            com.mathamorphosis.ui.visualizations.ChaosGameView chaosView =
+                    new com.mathamorphosis.ui.visualizations.ChaosGameView();
+            VBox.setVgrow(chaosView, Priority.ALWAYS);
+            chaosView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            content.getChildren().setAll(chaosView);
         }
 
         rootNode.getChildren().setAll(moduleLayout);

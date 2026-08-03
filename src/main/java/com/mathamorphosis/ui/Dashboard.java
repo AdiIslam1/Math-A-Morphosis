@@ -40,6 +40,7 @@ public class Dashboard extends VBox {
         grid.add(createModuleCard("Trigonometry", "Unit Circle Unroller", () -> onModuleSelected.accept("UNIT_CIRCLE")), 0, 2);
         grid.add(createModuleCard("Algebra", "2D Graphing Calculator", () -> onModuleSelected.accept("GRAPHING_CALC")), 1, 2);
         grid.add(createModuleCard("Signal Processing", "Fourier Series Epicycles", () -> onModuleSelected.accept("FOURIER_SERIES")), 0, 3);
+        grid.add(createModuleCard("Mathematical Marvels", "The Chaos Game: Order from Randomness", () -> onModuleSelected.accept("CHAOS_GAME")), 1, 3);
         
         this.getChildren().addAll(header, grid);
     }

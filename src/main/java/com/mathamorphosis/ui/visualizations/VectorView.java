@@ -21,8 +21,11 @@ public class VectorView extends VBox {
     private final double ORIGIN_Y = HEIGHT / 2;
     
     // Vectors
-    private double bx = 200, by = 0; // Vector B (Anchor, drawn on X axis for simplicity)
+    private double bx = 200, by = 0; // Vector B (Anchor, initially drawn on X axis for simplicity)
     private double ax = 100, ay = -150; // Vector A (Draggable)
+
+    private boolean draggingA = false;
+    private boolean draggingB = false;
 
     private AnimationTimer timer;
     private boolean isRunning = false;
@@ -34,9 +37,35 @@ public class VectorView extends VBox {
         canvas = new Canvas(WIDTH, HEIGHT);
         gc = canvas.getGraphicsContext2D();
 
+        canvas.setOnMousePressed(e -> {
+            double mouseX = e.getX();
+            double mouseY = e.getY();
+            
+            double distA = Math.hypot(mouseX - (ORIGIN_X + ax), mouseY - (ORIGIN_Y + ay));
+            double distB = Math.hypot(mouseX - (ORIGIN_X + bx), mouseY - (ORIGIN_Y + by));
+            
+            if (distB < distA) {
+                draggingB = true;
+                draggingA = false;
+            } else {
+                draggingA = true;
+                draggingB = false;
+            }
+        });
+
+        canvas.setOnMouseReleased(e -> {
+            draggingA = false;
+            draggingB = false;
+        });
+
         canvas.setOnMouseDragged(e -> {
-            ax = e.getX() - ORIGIN_X;
-            ay = e.getY() - ORIGIN_Y;
+            if (draggingB) {
+                bx = e.getX() - ORIGIN_X;
+                by = e.getY() - ORIGIN_Y;
+            } else {
+                ax = e.getX() - ORIGIN_X;
+                ay = e.getY() - ORIGIN_Y;
+            }
             // Stop animation if user manually drags
             if (isRunning && timer != null) {
                 timer.stop();
@@ -140,24 +169,47 @@ public class VectorView extends VBox {
         // Projection of A onto B: proj_B(A) = (A dot B / |B|^2) * B
         double dotProduct = (ax * bx) + (ay * by);
         double bMagSq = (bx * bx) + (by * by);
+        if (bMagSq < 1e-6) bMagSq = 1e-6; // Prevent division by zero
         double scalar = dotProduct / bMagSq;
         
         double projX = scalar * bx;
         double projY = scalar * by;
 
-        // 1. Draw Projection (Yellow or Red)
-        gc.setLineWidth(6);
-        if (dotProduct < 0) {
-            gc.setStroke(Color.web("#ef4444")); // Red for negative dot product
-        } else {
-            gc.setStroke(Color.web("#eab308")); // Yellow for positive projection
-        }
-        gc.strokeLine(ORIGIN_X, ORIGIN_Y, ORIGIN_X + projX, ORIGIN_Y + projY);
+        boolean blueDominant = Math.abs(scalar) >= 0.999;
 
-        // 2. Draw Anchor Vector B (Blue)
-        gc.setLineWidth(4);
-        gc.setStroke(Color.web("#0ea5e9")); // Blue
-        drawArrow(ORIGIN_X, ORIGIN_Y, ORIGIN_X + bx, ORIGIN_Y + by);
+        if (blueDominant) {
+            // Background: Projection (thicker)
+            gc.setLineWidth(8);
+            if (dotProduct < 0) {
+                gc.setStroke(Color.web("#ef4444")); // Red for negative dot product
+            } else {
+                gc.setStroke(Color.web("#eab308")); // Yellow for positive projection
+            }
+            gc.strokeLine(ORIGIN_X, ORIGIN_Y, ORIGIN_X + projX, ORIGIN_Y + projY);
+
+            // Foreground: Anchor Vector B (Blue, thinner)
+            gc.setLineWidth(4);
+            gc.setStroke(Color.web("#0ea5e9")); // Blue
+            drawArrow(ORIGIN_X, ORIGIN_Y, ORIGIN_X + bx, ORIGIN_Y + by);
+        } else {
+            // Background: Anchor Vector B (Blue, thicker)
+            gc.setLineWidth(8);
+            gc.setStroke(Color.web("#0ea5e9")); // Blue
+            drawArrow(ORIGIN_X, ORIGIN_Y, ORIGIN_X + bx, ORIGIN_Y + by);
+
+            // Foreground: Projection (thinner)
+            gc.setLineWidth(4);
+            if (dotProduct < 0) {
+                gc.setStroke(Color.web("#ef4444")); // Red for negative dot product
+            } else {
+                gc.setStroke(Color.web("#eab308")); // Yellow for positive projection
+            }
+            gc.strokeLine(ORIGIN_X, ORIGIN_Y, ORIGIN_X + projX, ORIGIN_Y + projY);
+        }
+
+        // Draw Draggable Handle on tip of B
+        gc.setFill(Color.WHITE);
+        gc.fillOval(ORIGIN_X + bx - 8, ORIGIN_Y + by - 8, 16, 16);
 
         // 3. Draw Dashed Drop Line (Shadow)
         gc.setLineWidth(2);
