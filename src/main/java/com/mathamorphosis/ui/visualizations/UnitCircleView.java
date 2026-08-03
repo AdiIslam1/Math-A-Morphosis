@@ -145,9 +145,26 @@ public class UnitCircleView extends BorderPane {
         tangentRadio.setStyle("-fx-text-fill: #f97316; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand;");
         
         refTriangleToggle = new ToggleButton("Show Reference Triangle");
-        refTriangleToggle.setStyle("-fx-font-size: 14px; -fx-text-fill: #b0b0d0; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;");
+        final String REF_OFF = "-fx-font-size: 14px; -fx-text-fill: #6868a0; -fx-font-weight: bold;" +
+            "-fx-background-color: #1a1a38; -fx-border-color: #32325a; -fx-border-width: 2px;" +
+            "-fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 10px 20px; -fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, transparent, 0, 0, 0, 0);";
+        final String REF_ON  = "-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-font-weight: bold;" +
+            "-fx-background-color: #10b981; -fx-border-color: #10b981; -fx-border-width: 2px;" +
+            "-fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 10px 20px; -fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, #10b981, 14, 0.65, 0, 0);";
+        refTriangleToggle.setStyle(REF_OFF);
+        refTriangleToggle.setOnMouseEntered(e -> refTriangleToggle.setStyle(
+            refTriangleToggle.isSelected() ? REF_ON :
+            "-fx-font-size: 14px; -fx-text-fill: #b0b0d0; -fx-font-weight: bold;" +
+            "-fx-background-color: #22224a; -fx-border-color: #5ba8e0; -fx-border-width: 2px;" +
+            "-fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 10px 20px; -fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, #5ba8e040, 8, 0.4, 0, 0);"
+        ));
+        refTriangleToggle.setOnMouseExited(e -> refTriangleToggle.setStyle(refTriangleToggle.isSelected() ? REF_ON : REF_OFF));
         refTriangleToggle.setOnAction(e -> {
             boolean show = refTriangleToggle.isSelected();
+            refTriangleToggle.setStyle(show ? REF_ON : REF_OFF);
             referenceTriangle.setVisible(show);
             refVerticalLine.setVisible(show);
             refHorizontalLine.setVisible(show);

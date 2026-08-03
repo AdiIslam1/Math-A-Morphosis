@@ -117,25 +117,36 @@ public class RiemannView extends BorderPane {
         // Preset buttons row
         HBox presets = new HBox(8);
         presets.setAlignment(Pos.CENTER_RIGHT);
+        final Button[] presetBtns = new Button[PRESETS.length];
+        final int[] activePreset = {-1};
         for (int i = 0; i < PRESETS.length; i++) {
             final int idx = i;
             Button pb = new Button(PRESET_NAMES[i]);
-            pb.setStyle(
-                "-fx-background-color:transparent; -fx-text-fill:" + TEXT_MUTED + ";" +
-                "-fx-border-color:" + BORDER + "; -fx-border-radius:4; -fx-background-radius:4;" +
-                "-fx-font-size:11px; -fx-padding:4 10; -fx-cursor:hand;"
-            );
-            pb.setOnMouseEntered(e -> pb.setStyle(
-                "-fx-background-color:" + BORDER + "; -fx-text-fill:" + TEXT_LIGHT + ";" +
-                "-fx-border-color:" + BORDER + "; -fx-border-radius:4; -fx-background-radius:4;" +
-                "-fx-font-size:11px; -fx-padding:4 10; -fx-cursor:hand;"
-            ));
-            pb.setOnMouseExited(e -> pb.setStyle(
-                "-fx-background-color:transparent; -fx-text-fill:" + TEXT_MUTED + ";" +
-                "-fx-border-color:" + BORDER + "; -fx-border-radius:4; -fx-background-radius:4;" +
-                "-fx-font-size:11px; -fx-padding:4 10; -fx-cursor:hand;"
-            ));
+            presetBtns[idx] = pb;
+            final String PBBASE = "-fx-background-color:" + BG_INPUT + "; -fx-text-fill:" + ACCENT + ";" +
+                "-fx-border-color:" + ACCENT + "; -fx-border-radius:6; -fx-background-radius:6;" +
+                "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:5 12; -fx-cursor:hand;" +
+                "-fx-effect: dropshadow(gaussian, transparent, 0, 0, 0, 0);";
+            final String PBLIT  = "-fx-background-color:" + ACCENT + "; -fx-text-fill:#0a0a14;" +
+                "-fx-border-color:" + ACCENT + "; -fx-border-radius:6; -fx-background-radius:6;" +
+                "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:5 12; -fx-cursor:hand;" +
+                "-fx-effect: dropshadow(gaussian, " + ACCENT + ", 10, 0.55, 0, 0);";
+            pb.setStyle(PBBASE);
+            pb.setOnMouseEntered(e -> pb.setStyle(PBLIT));
+            pb.setOnMouseExited(e -> pb.setStyle(activePreset[0] == idx ? PBLIT : PBBASE));
             pb.setOnAction(e -> {
+                activePreset[0] = idx;
+                for (int j = 0; j < presetBtns.length; j++) {
+                    final String bBase = "-fx-background-color:" + BG_INPUT + "; -fx-text-fill:" + ACCENT + ";" +
+                        "-fx-border-color:" + ACCENT + "; -fx-border-radius:6; -fx-background-radius:6;" +
+                        "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:5 12; -fx-cursor:hand;" +
+                        "-fx-effect: dropshadow(gaussian, transparent, 0, 0, 0, 0);";
+                    final String bLit  = "-fx-background-color:" + ACCENT + "; -fx-text-fill:#0a0a14;" +
+                        "-fx-border-color:" + ACCENT + "; -fx-border-radius:6; -fx-background-radius:6;" +
+                        "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:5 12; -fx-cursor:hand;" +
+                        "-fx-effect: dropshadow(gaussian, " + ACCENT + ", 10, 0.55, 0, 0);";
+                    presetBtns[j].setStyle(j == idx ? bLit : bBase);
+                }
                 funcField.setText(PRESETS[idx]);
                 updateFunction(PRESETS[idx]);
             });
@@ -373,21 +384,21 @@ public class RiemannView extends BorderPane {
 
     private Button controlButton(String text, String color) {
         Button btn = new Button(text);
-        btn.setStyle(
-            "-fx-background-color:transparent; -fx-text-fill:" + TEXT_LIGHT + ";" +
-            "-fx-border-color:" + BORDER + "; -fx-border-radius:4; -fx-background-radius:4;" +
-            "-fx-font-size:12px; -fx-padding:6 10; -fx-cursor:hand;"
-        );
-        btn.setOnMouseEntered(e -> btn.setStyle(
-            "-fx-background-color:" + BORDER + "; -fx-text-fill:" + TEXT_LIGHT + ";" +
-            "-fx-border-color:" + BORDER + "; -fx-border-radius:4; -fx-background-radius:4;" +
-            "-fx-font-size:12px; -fx-padding:6 10; -fx-cursor:hand;"
-        ));
-        btn.setOnMouseExited(e -> btn.setStyle(
-            "-fx-background-color:transparent; -fx-text-fill:" + TEXT_LIGHT + ";" +
-            "-fx-border-color:" + BORDER + "; -fx-border-radius:4; -fx-background-radius:4;" +
-            "-fx-font-size:12px; -fx-padding:6 10; -fx-cursor:hand;"
-        ));
+        final boolean[] pressed = {false};
+        final String BASE = "-fx-background-color:" + BG_INPUT + "; -fx-text-fill:" + color + ";" +
+            "-fx-border-color:" + color + "; -fx-border-radius:6; -fx-background-radius:6;" +
+            "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:6 8; -fx-cursor:hand;" +
+            "-fx-effect: dropshadow(gaussian, transparent, 0, 0, 0, 0);";
+        final String HOVER = "-fx-background-color:" + color + "; -fx-text-fill:#0a0a14;" +
+            "-fx-border-color:" + color + "; -fx-border-radius:6; -fx-background-radius:6;" +
+            "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:6 8; -fx-cursor:hand;" +
+            "-fx-effect: dropshadow(gaussian, " + color + ", 12, 0.6, 0, 0);";
+        btn.setStyle(BASE);
+        btn.setMinWidth(72);
+        btn.setOnMouseEntered(e -> btn.setStyle(HOVER));
+        btn.setOnMouseExited(e -> btn.setStyle(pressed[0] ? HOVER : BASE));
+        btn.setOnMousePressed(e -> { pressed[0] = true;  btn.setStyle(HOVER); });
+        btn.setOnMouseReleased(e -> { pressed[0] = false; btn.setStyle(BASE); });
         HBox.setHgrow(btn, Priority.ALWAYS);
         return btn;
     }
@@ -577,10 +588,10 @@ public class RiemannView extends BorderPane {
         }
 
         // ── Axis bound labels (a and b) ───────────────────────────────────────
-        gc.setFill(Color.web(TEXT_MUTED));
-        gc.setFont(Font.font("Monospace", FontWeight.NORMAL, 11));
+        gc.setFill(Color.web(ACCENT_WARM));
+        gc.setFont(Font.font("Monospace", FontWeight.BOLD, 13));
         gc.fillText(String.format("a=%.1f", aValue), PAD_L,              PAD_T + plotH + 30);
-        gc.fillText(String.format("b=%.1f", bValue), PAD_L + plotW - 46, PAD_T + plotH + 30);
+        gc.fillText(String.format("b=%.1f", bValue), PAD_L + plotW - 50, PAD_T + plotH + 30);
 
         // ── Riemann Rectangles ────────────────────────────────────────────────
         double dx  = rangeX / n;
@@ -655,9 +666,9 @@ public class RiemannView extends BorderPane {
         }
 
         // ── f(x) legend ───────────────────────────────────────────────────────
-        gc.setFill(Color.web(TEXT_MUTED));
-        gc.setFont(Font.font("Monospace", FontWeight.NORMAL, 11));
-        gc.fillText("f(x) = " + functionStr, PAD_L + 10, PAD_T + 18);
+        gc.setFill(Color.web("#40e0d0"));
+        gc.setFont(Font.font("Monospace", FontWeight.BOLD, 15));
+        gc.fillText("f(x) = " + functionStr, PAD_L + 10, PAD_T + 20);
 
         // ── Stats update ──────────────────────────────────────────────────────
         double actualArea = calculateActualArea(aValue, bValue);

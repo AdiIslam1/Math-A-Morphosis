@@ -133,7 +133,58 @@ public class FourierSeriesView extends StackPane {
         modeCombo = new ComboBox<>();
         modeCombo.getItems().addAll("Square Wave (1D)", "Sawtooth Wave (1D)", "Custom Drawing (2D)");
         modeCombo.setValue("Square Wave (1D)");
-        modeCombo.setStyle("-fx-font-size: 12px;");
+        modeCombo.setStyle(
+            "-fx-background-color: #0d1b2e;" +
+            "-fx-border-color: #5ba8e0;" +
+            "-fx-border-radius: 8;" +
+            "-fx-background-radius: 8;" +
+            "-fx-border-width: 1.5px;" +
+            "-fx-font-size: 13px;" +
+            "-fx-font-style: italic;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: #5ba8e0;" +
+            "-fx-padding: 4 8;" +
+            "-fx-effect: dropshadow(gaussian, #5ba8e030, 8, 0.4, 0, 0);"
+        );
+        // Elegant cell factory for dropdown rows
+        javafx.util.Callback<javafx.scene.control.ListView<String>, javafx.scene.control.ListCell<String>> modeCF = lv ->
+            new javafx.scene.control.ListCell<>() {
+                @Override protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setStyle("-fx-background-color: #0d1b2e;");
+                    } else {
+                        setText(item);
+                        setStyle(
+                            "-fx-background-color: #0d1b2e;" +
+                            "-fx-text-fill: #5ba8e0;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-style: italic;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-padding: 6 12;"
+                        );
+                        setOnMouseEntered(e -> setStyle(
+                            "-fx-background-color: #1a3a5c;" +
+                            "-fx-text-fill: #ffffff;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-style: italic;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-padding: 6 12;"
+                        ));
+                        setOnMouseExited(e -> setStyle(
+                            "-fx-background-color: #0d1b2e;" +
+                            "-fx-text-fill: #5ba8e0;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-style: italic;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-padding: 6 12;"
+                        ));
+                    }
+                }
+            };
+        modeCombo.setButtonCell(modeCF.call(null));
+        modeCombo.setCellFactory(modeCF);
 
         Label termsLabel = new Label("Circles:");
         termsLabel.setStyle("-fx-text-fill: #10b981; -fx-font-size: 14px; -fx-font-weight: bold;");
