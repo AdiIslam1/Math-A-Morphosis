@@ -78,7 +78,7 @@ public class LeastSquaresView extends BorderPane {
                 "-fx-border-radius: 12px;" +
                 "-fx-border-width: 2px;"
         );
-        gridPane.setMinSize(WIDTH, HEIGHT);
+        gridPane.setMinSize(750, 520);
         gridPane.setPrefSize(WIDTH, HEIGHT);
         gridPane.setMaxSize(WIDTH, HEIGHT);
         drawAxesAndGrid();
@@ -347,7 +347,7 @@ public class LeastSquaresView extends BorderPane {
                 "-fx-background-radius: 12px;" +
                 "-fx-border-width: 2px;"
         );
-        scroll.setMinSize(420, HEIGHT);
+        scroll.setMinSize(360, 520);
         scroll.setPrefSize(420, HEIGHT);
         scroll.setMaxSize(420, HEIGHT);
 

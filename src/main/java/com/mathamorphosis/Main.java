@@ -61,18 +61,24 @@ public class Main extends Application {
         moduleLayout.setTop(backBtn);
         BorderPane.setMargin(backBtn, new Insets(0, 0, 20, 0));
 
-        // Module content placeholder
+        // Module content container
         VBox content = new VBox();
         content.setAlignment(Pos.CENTER);
-        Rectangle contentClip = new Rectangle();
-        contentClip.widthProperty().bind(content.widthProperty());
-        contentClip.heightProperty().bind(content.heightProperty());
-        content.setClip(contentClip);
-        Label placeholder = new Label("Loading " + moduleId + "...");
-        placeholder.getStyleClass().add("header-text");
-        content.getChildren().add(placeholder);
-        
-        moduleLayout.setCenter(content);
+
+        // Wrap content in a transparent ScrollPane to prevent overflow on all devices
+        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setStyle(
+                "-fx-background: transparent;" +
+                "-fx-background-color: transparent;" +
+                "-fx-viewport-background-color: transparent;" +
+                "-fx-border-width: 0;"
+        );
+
+        moduleLayout.setCenter(scrollPane);
 
         if (moduleId.equals("NUMBER_THEORY")) {
             content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.SieveView());
