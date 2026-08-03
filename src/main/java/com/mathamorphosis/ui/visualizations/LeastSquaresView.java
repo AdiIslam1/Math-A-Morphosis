@@ -7,18 +7,22 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -29,12 +33,18 @@ public class LeastSquaresView extends BorderPane {
 
     private final Pane gridPane;
     private final List<Circle> dataPoints = new ArrayList<>();
-    
+
     private final ToggleButton userGuessToggle;
     private final Button calcBestFitBtn;
     private final ToggleButton showErrorsToggle;
-    
+
     private final Label instructionLabel;
+
+    // Live result labels
+    private final Label livePointCount;
+    private final Label liveSlopeLabel;
+    private final Label liveInterceptLabel;
+    private final Label liveEquationLabel;
 
     private Line userGuessLine;
     private int userGuessClicks = 0;
@@ -45,46 +55,47 @@ public class LeastSquaresView extends BorderPane {
     private final List<Rectangle> errorSquares = new ArrayList<>();
 
     private boolean bestFitActive = false;
-    
+
     // Coordinate System
-    private final double WIDTH = 1000;
+    private final double WIDTH  = 800;
     private final double HEIGHT = 600;
     private final double MARGIN = 50;
-    private final double GRAPH_W = WIDTH - 2 * MARGIN;
+    private final double GRAPH_W = WIDTH  - 2 * MARGIN;
     private final double GRAPH_H = HEIGHT - 2 * MARGIN;
-    
+
     private final double X_MAX = 20;
     private final double Y_MAX = 20;
 
     public LeastSquaresView() {
         this.getStyleClass().add("root");
 
+        // ── Grid / Chart pane ────────────────────────────────────────────
         gridPane = new Pane();
-        gridPane.setStyle("-fx-background-color: #1c1c38; -fx-background-radius: 12px; -fx-border-color: #32325a; -fx-border-radius: 12px; -fx-border-width: 2px;");
+        gridPane.setStyle(
+                "-fx-background-color: #1c1c38;" +
+                "-fx-background-radius: 12px;" +
+                "-fx-border-color: #32325a;" +
+                "-fx-border-radius: 12px;" +
+                "-fx-border-width: 2px;"
+        );
         gridPane.setPrefSize(WIDTH, HEIGHT);
-        
         drawAxesAndGrid();
-
         gridPane.setOnMouseClicked(this::handleGridClick);
 
-        VBox topBox = new VBox(10);
-        topBox.setAlignment(Pos.CENTER);
-        topBox.setPadding(new Insets(10, 0, 10, 0));
-        
+        // ── Title ─────────────────────────────────────────────────────────
         Label title = new Label("Least Squares Regression Sandbox");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
-        
+        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;");
+
         instructionLabel = new Label("Click anywhere on the grid to add data points. Drag them to adjust.");
-        instructionLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6868a0;");
-        
-        topBox.getChildren().addAll(title, instructionLabel);
+        instructionLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #6868a0;");
 
-        HBox controls = new HBox(20);
-        controls.setAlignment(Pos.CENTER);
-        controls.setPadding(new Insets(20));
-
+        // ── Controls ──────────────────────────────────────────────────────
         userGuessToggle = new ToggleButton("1. Draw Your Guess Line");
-        userGuessToggle.setStyle("-fx-font-size: 14px; -fx-text-fill: #b0b0d0; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;");
+        userGuessToggle.setStyle(
+                "-fx-font-size: 14px; -fx-text-fill: #b0b0d0;" +
+                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-background-radius: 8px; -fx-cursor: hand;"
+        );
         userGuessToggle.setOnAction(e -> {
             if (!userGuessToggle.isSelected()) {
                 clearUserGuess();
@@ -96,49 +107,298 @@ public class LeastSquaresView extends BorderPane {
         });
 
         calcBestFitBtn = new Button("2. Calculate Best Fit");
-        calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-border-color: #5ba8e0; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;");
+        calcBestFitBtn.setStyle(
+                "-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;" +
+                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-border-color: #5ba8e0; -fx-border-radius: 8px;" +
+                "-fx-border-width: 2px; -fx-cursor: hand;"
+        );
         calcBestFitBtn.setOnAction(e -> calculateBestFit());
-        
-        calcBestFitBtn.setOnMouseEntered(e -> calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-color: #5ba8e0; -fx-padding: 10px 20px; -fx-border-color: #5ba8e0; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;"));
-        calcBestFitBtn.setOnMouseExited(e -> calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-border-color: #5ba8e0; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;"));
-
+        calcBestFitBtn.setOnMouseEntered(e -> calcBestFitBtn.setStyle(
+                "-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-font-weight: bold;" +
+                "-fx-background-color: #5ba8e0; -fx-padding: 10px 20px;" +
+                "-fx-border-color: #5ba8e0; -fx-border-radius: 8px;" +
+                "-fx-border-width: 2px; -fx-cursor: hand;"
+        ));
+        calcBestFitBtn.setOnMouseExited(e -> calcBestFitBtn.setStyle(
+                "-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;" +
+                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-border-color: #5ba8e0; -fx-border-radius: 8px;" +
+                "-fx-border-width: 2px; -fx-cursor: hand;"
+        ));
 
         showErrorsToggle = new ToggleButton("3. Show Error Squares");
-        showErrorsToggle.setStyle("-fx-font-size: 14px; -fx-text-fill: #b0b0d0; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;");
+        showErrorsToggle.setStyle(
+                "-fx-font-size: 14px; -fx-text-fill: #b0b0d0;" +
+                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-background-radius: 8px; -fx-cursor: hand;"
+        );
         showErrorsToggle.setOnAction(e -> updateVisuals());
 
+        HBox controls = new HBox(20);
+        controls.setAlignment(Pos.CENTER);
+        controls.setPadding(new Insets(16, 0, 8, 0));
         controls.getChildren().addAll(userGuessToggle, calcBestFitBtn, showErrorsToggle);
 
-        this.setTop(topBox);
-        this.setCenter(gridPane);
-        this.setBottom(controls);
-        BorderPane.setMargin(gridPane, new Insets(10, 40, 10, 40));
+        // ── Center VBox ───────────────────────────────────────────────────
+        VBox centerBox = new VBox(12);
+        centerBox.setAlignment(Pos.CENTER);
+        centerBox.setPadding(new Insets(20, 30, 20, 20));
+        centerBox.setStyle("-fx-background-color: #0c0c1e;");
+        VBox.setVgrow(gridPane, Priority.ALWAYS);
+        centerBox.getChildren().addAll(title, gridPane, controls);
+
+        // ── Live result labels (stored for updates) ───────────────────────
+        livePointCount    = makeLiveLabel("Data Points: 0",    "#f0f0f8", 15, true);
+        liveSlopeLabel    = makeLiveLabel("m (slope) = \u2014",   "#4cbf95", 15, true);
+        liveInterceptLabel = makeLiveLabel("b (intercept) = \u2014", "#5ba8e0", 15, true);
+        liveEquationLabel = makeLiveLabel("ŷ = \u2014",           "#d4a84b", 14, false);
+
+        // ── Left explanation panel ────────────────────────────────────────
+        VBox leftPanel = buildExplanationPanel();
+        leftPanel.setPrefWidth(360);
+        leftPanel.setMinWidth(360);
+        leftPanel.setMaxWidth(360);
+
+        // ── Wire up ───────────────────────────────────────────────────────
+        this.setLeft(leftPanel);
+        this.setCenter(centerBox);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Explanation panel builder
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private VBox buildExplanationPanel() {
+        VBox panel = new VBox(14);
+        panel.setPadding(new Insets(24, 20, 24, 20));
+        panel.setStyle(
+                "-fx-background-color: #14142a;" +
+                "-fx-border-color: #32325a;" +
+                "-fx-border-width: 0 1 0 0;"
+        );
+
+        // Section label
+        Label sectionLabel = new Label("STATISTICS");
+        sectionLabel.setStyle(
+                "-fx-font-size: 13px; -fx-font-weight: bold;" +
+                "-fx-text-fill: #6868a0; -fx-letter-spacing: 2;"
+        );
+
+        // ── WHAT IS THIS card ──────────────────────────────────────────────
+        VBox whatCard = new VBox(10);
+        whatCard.setStyle(
+                "-fx-background-color: #1c1c38;" +
+                "-fx-border-color: #d4a84b;" +
+                "-fx-border-width: 0 0 0 4;" +
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-padding: 18;"
+        );
+
+        Label whatTitle = new Label("Least Squares Regression");
+        whatTitle.setStyle(
+                "-fx-font-size: 20px; -fx-font-weight: bold;" +
+                "-fx-text-fill: #d4a84b;"
+        );
+
+        Label whatDesc = new Label(
+                "Place data points and find the single straight line that minimises " +
+                "the total squared vertical distance from every point to the line."
+        );
+        whatDesc.setStyle("-fx-font-size: 15px; -fx-text-fill: #d0d0e8;");
+        whatDesc.setWrapText(true);
+
+        whatCard.getChildren().addAll(whatTitle, whatDesc);
+
+        // ── THE FORMULA card ───────────────────────────────────────────────
+        VBox formulaCard = new VBox(8);
+        formulaCard.setStyle(
+                "-fx-background-color: #1c1c38;" +
+                "-fx-border-color: #32325a;" +
+                "-fx-border-width: 1;" +
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-padding: 16;"
+        );
+
+        Label formulaHeader = new Label("THE FORMULA");
+        formulaHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+
+        Label formulaMain = new Label("ŷ = mx + b");
+        formulaMain.setStyle(
+                "-fx-font-size: 22px; -fx-font-weight: bold;" +
+                "-fx-text-fill: #d4a84b;" +
+                "-fx-font-family: 'Courier New', monospace;"
+        );
+
+        Label mLabel = new Label("m = \u03A3(x\u1D62 \u2212 x\u0305)(y\u1D62 \u2212 y\u0305) / \u03A3(x\u1D62 \u2212 x\u0305)\u00B2");
+        mLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0;");
+        mLabel.setWrapText(true);
+
+        Label bLabel = new Label("b = y\u0305 \u2212 m\u00B7x\u0305");
+        bLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0;");
+
+        Label noteLabel = new Label("Where x\u0305, y\u0305 are the means of x and y");
+        noteLabel.setStyle(
+                "-fx-font-size: 12px; -fx-text-fill: #6868a0;" +
+                "-fx-font-style: italic;"
+        );
+
+        formulaCard.getChildren().addAll(formulaHeader, formulaMain, mLabel, bLabel, noteLabel);
+
+        // ── LIVE RESULTS card ──────────────────────────────────────────────
+        VBox liveCard = new VBox(8);
+        liveCard.setStyle(
+                "-fx-background-color: #1c1c38;" +
+                "-fx-border-color: #32325a;" +
+                "-fx-border-width: 1;" +
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-padding: 16;"
+        );
+
+        Label liveHeader = new Label("LIVE RESULTS");
+        liveHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+
+        liveCard.getChildren().addAll(
+                liveHeader,
+                livePointCount,
+                liveSlopeLabel,
+                liveInterceptLabel,
+                liveEquationLabel
+        );
+
+        // ── HOW TO USE card ────────────────────────────────────────────────
+        VBox howCard = new VBox(6);
+        howCard.setStyle(
+                "-fx-background-color: #1c1c38;" +
+                "-fx-border-color: #32325a;" +
+                "-fx-border-width: 1;" +
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-padding: 14;"
+        );
+
+        Label howHeader = new Label("HOW TO USE");
+        howHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+
+        String[] steps = {
+            "1. Click the grid to place data points",
+            "2. Optionally draw your guess line first",
+            "3. Hit Calculate Best Fit to see the math",
+            "4. Toggle error squares to visualise residuals",
+            "5. Drag points to watch the line react live"
+        };
+        howCard.getChildren().add(howHeader);
+        for (String step : steps) {
+            Label stepLabel = new Label(step);
+            stepLabel.setStyle(
+                    "-fx-font-size: 13px; -fx-text-fill: #b0b0d0;" +
+                    "-fx-line-spacing: 3;"
+            );
+            stepLabel.setWrapText(true);
+            howCard.getChildren().add(stepLabel);
+        }
+
+        // ── WHY IT MATTERS card ────────────────────────────────────────────
+        VBox whyCard = new VBox(6);
+        whyCard.setStyle(
+                "-fx-background-color: #1c1c38;" +
+                "-fx-border-color: #32325a;" +
+                "-fx-border-width: 1;" +
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-padding: 14;"
+        );
+
+        Label whyHeader = new Label("REAL WORLD USES");
+        whyHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+
+        String[] uses = {
+            "\uD83D\uDCC8 Predicting stock trends",
+            "\uD83C\uDFE5 Medical dosage modelling",
+            "\uD83C\uDF21 Climate change analysis",
+            "\uD83D\uDE97 Fuel efficiency estimation"
+        };
+        whyCard.getChildren().add(whyHeader);
+        for (String use : uses) {
+            Label useLabel = new Label(use);
+            useLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0;");
+            whyCard.getChildren().add(useLabel);
+        }
+
+        panel.getChildren().addAll(
+                sectionLabel,
+                whatCard,
+                formulaCard,
+                liveCard,
+                howCard,
+                whyCard
+        );
+
+        // Wrap in a ScrollPane so it degrades gracefully at small heights
+        ScrollPane scroll = new ScrollPane(panel);
+        scroll.setFitToWidth(true);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.setStyle("-fx-background: #14142a; -fx-background-color: #14142a; -fx-border-width: 0;");
+
+        VBox wrapper = new VBox(scroll);
+        VBox.setVgrow(scroll, Priority.ALWAYS);
+        wrapper.setStyle(
+                "-fx-background-color: #14142a;" +
+                "-fx-border-color: #32325a;" +
+                "-fx-border-width: 0 1 0 0;"
+        );
+        return wrapper;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helper
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private Label makeLiveLabel(String text, String color, int size, boolean bold) {
+        Label lbl = new Label(text);
+        lbl.setStyle(
+                "-fx-font-size: " + size + "px;" +
+                (bold ? " -fx-font-weight: bold;" : "") +
+                " -fx-text-fill: " + color + ";"
+        );
+        return lbl;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Coordinate helpers
+    // ─────────────────────────────────────────────────────────────────────────
 
     private double toScreenX(double mathX) {
         return MARGIN + (mathX / X_MAX) * GRAPH_W;
     }
-    
+
     private double toScreenY(double mathY) {
         return HEIGHT - MARGIN - (mathY / Y_MAX) * GRAPH_H;
     }
-    
+
     private double toMathX(double screenX) {
         return ((screenX - MARGIN) / GRAPH_W) * X_MAX;
     }
-    
+
     private double toMathY(double screenY) {
         return ((HEIGHT - MARGIN - screenY) / GRAPH_H) * Y_MAX;
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Grid / Axes
+    // ─────────────────────────────────────────────────────────────────────────
+
     private void drawAxesAndGrid() {
-        // Grid lines
+        // Vertical grid lines
         for (int i = 0; i <= X_MAX; i++) {
             double sx = toScreenX(i);
             Line vLine = new Line(sx, MARGIN, sx, HEIGHT - MARGIN);
             vLine.setStroke(Color.web("#32325a", 0.5));
             gridPane.getChildren().add(vLine);
-            
+
             if (i % 5 == 0 && i > 0) {
                 Text label = new Text(String.valueOf(i));
                 label.setFill(Color.web("#6868a0"));
@@ -148,12 +408,13 @@ public class LeastSquaresView extends BorderPane {
                 gridPane.getChildren().add(label);
             }
         }
+        // Horizontal grid lines
         for (int i = 0; i <= Y_MAX; i++) {
             double sy = toScreenY(i);
             Line hLine = new Line(MARGIN, sy, WIDTH - MARGIN, sy);
             hLine.setStroke(Color.web("#32325a", 0.5));
             gridPane.getChildren().add(hLine);
-            
+
             if (i % 5 == 0 && i > 0) {
                 Text label = new Text(String.valueOf(i));
                 label.setFill(Color.web("#6868a0"));
@@ -163,26 +424,30 @@ public class LeastSquaresView extends BorderPane {
                 gridPane.getChildren().add(label);
             }
         }
-        
+
         // Axes
         Line xAxis = new Line(MARGIN, HEIGHT - MARGIN, WIDTH - MARGIN + 10, HEIGHT - MARGIN);
         xAxis.setStroke(Color.web("#6868a0"));
         xAxis.setStrokeWidth(2);
-        
+
         Line yAxis = new Line(MARGIN, HEIGHT - MARGIN, MARGIN, MARGIN - 10);
         yAxis.setStroke(Color.web("#6868a0"));
         yAxis.setStrokeWidth(2);
-        
+
         gridPane.getChildren().addAll(xAxis, yAxis);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Interaction
+    // ─────────────────────────────────────────────────────────────────────────
 
     private void handleGridClick(MouseEvent event) {
         if (event.getTarget() instanceof Circle) return;
 
         double mx = toMathX(event.getX());
         double my = toMathY(event.getY());
-        
-        if (mx < 0 || mx > X_MAX || my < 0 || my > Y_MAX) return; // Ignore clicks outside graph
+
+        if (mx < 0 || mx > X_MAX || my < 0 || my > Y_MAX) return;
 
         if (userGuessToggle.isSelected()) {
             if (userGuessClicks == 0) {
@@ -241,27 +506,26 @@ public class LeastSquaresView extends BorderPane {
     private void addPoint(double mathX, double mathY) {
         double sx = toScreenX(mathX);
         double sy = toScreenY(mathY);
-        
+
         Circle point = new Circle(sx, sy, 8, Color.web("#facc15"));
         point.setStroke(Color.WHITE);
         point.setStrokeWidth(2);
         point.setCursor(javafx.scene.Cursor.HAND);
-        
+
         DropShadow shadow = new DropShadow(8, Color.web("#facc15"));
         point.setEffect(shadow);
-        
+
         point.setOnMouseEntered(e -> point.setRadius(10));
-        point.setOnMouseExited(e -> point.setRadius(8));
-        
+        point.setOnMouseExited(e  -> point.setRadius(8));
+
         point.setOnMouseDragged(e -> {
             double nx = e.getX();
             double ny = e.getY();
-            // clamp
-            if (nx < MARGIN) nx = MARGIN;
-            if (nx > WIDTH - MARGIN) nx = WIDTH - MARGIN;
-            if (ny < MARGIN) ny = MARGIN;
+            if (nx < MARGIN)          nx = MARGIN;
+            if (nx > WIDTH - MARGIN)  nx = WIDTH - MARGIN;
+            if (ny < MARGIN)          ny = MARGIN;
             if (ny > HEIGHT - MARGIN) ny = HEIGHT - MARGIN;
-            
+
             point.setCenterX(nx);
             point.setCenterY(ny);
             updateVisuals();
@@ -270,12 +534,15 @@ public class LeastSquaresView extends BorderPane {
         dataPoints.add(point);
         gridPane.getChildren().add(point);
 
-        // Animation popup
+        // Pop-in animation
         point.setRadius(0);
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.millis(300), new KeyValue(point.radiusProperty(), 8))
         );
         timeline.play();
+
+        // Update live point count
+        livePointCount.setText("Data Points: " + dataPoints.size());
 
         updateVisuals();
     }
@@ -286,23 +553,26 @@ public class LeastSquaresView extends BorderPane {
             return;
         }
         bestFitActive = true;
-        
+
         if (userGuessToggle.isSelected()) {
             userGuessToggle.setSelected(false);
             clearUserGuess();
         }
-        
+
         instructionLabel.setText("Mathematical Best Fit calculated! Try dragging points to see it react.");
         updateVisuals();
     }
 
     private void updateVisuals() {
+        // Always keep point count fresh
+        livePointCount.setText("Data Points: " + dataPoints.size());
+
         if (!bestFitActive || dataPoints.size() < 2) return;
 
         double sumX = 0, sumY = 0;
         List<Double> mXs = new ArrayList<>();
         List<Double> mYs = new ArrayList<>();
-        
+
         for (Circle c : dataPoints) {
             double mx = toMathX(c.getCenterX());
             double my = toMathY(c.getCenterY());
@@ -311,7 +581,7 @@ public class LeastSquaresView extends BorderPane {
             sumX += mx;
             sumY += my;
         }
-        
+
         double meanX = sumX / dataPoints.size();
         double meanY = sumY / dataPoints.size();
 
@@ -324,19 +594,23 @@ public class LeastSquaresView extends BorderPane {
         double m = den == 0 ? 0 : num / den;
         double b = meanY - m * meanX;
 
+        // Update live result labels
+        liveSlopeLabel.setText(String.format("m (slope) = %.4f", m));
+        liveInterceptLabel.setText(String.format("b (intercept) = %.4f", b));
+        liveEquationLabel.setText(String.format("ŷ = %.4fx + %.4f", m, b));
+
         if (bestFitLine == null) {
             bestFitLine = new Line();
-            bestFitLine.setStroke(Color.web("#5ba8e0")); // Electric blue
+            bestFitLine.setStroke(Color.web("#5ba8e0"));
             bestFitLine.setStrokeWidth(5);
             bestFitLine.setEffect(new DropShadow(15, Color.web("#5ba8e0")));
             gridPane.getChildren().add(bestFitLine);
         }
 
-        // Calculate screen coordinates for the math line
         double startMathX = 0;
         double startMathY = m * startMathX + b;
-        double endMathX = X_MAX;
-        double endMathY = m * endMathX + b;
+        double endMathX   = X_MAX;
+        double endMathY   = m * endMathX + b;
 
         bestFitLine.setStartX(toScreenX(startMathX));
         bestFitLine.setStartY(toScreenY(startMathY));
@@ -352,8 +626,8 @@ public class LeastSquaresView extends BorderPane {
             for (Circle c : dataPoints) {
                 double cx = c.getCenterX();
                 double cy = c.getCenterY();
-                
-                double mx = toMathX(cx);
+
+                double mx    = toMathX(cx);
                 double mathLineY = m * mx + b;
                 double lineY = toScreenY(mathLineY);
 
@@ -363,9 +637,6 @@ public class LeastSquaresView extends BorderPane {
                 errorLine.getStrokeDashArray().addAll(5d, 5d);
                 errorLines.add(errorLine);
 
-                // Draw physical math square. 
-                // Since screen scale for X and Y are not equal, a "square" in math looks like a rectangle on screen.
-                // But typically for variance visualization, we draw a square visually based on the vertical distance.
                 double screenDist = Math.abs(cy - lineY);
                 if (screenDist > 0) {
                     Rectangle rect = new Rectangle();
@@ -374,11 +645,8 @@ public class LeastSquaresView extends BorderPane {
                     rect.setFill(Color.web("#f43f5e", 0.2));
                     rect.setStroke(Color.web("#f43f5e"));
                     rect.setStrokeWidth(1.5);
-                    
-                    // Draw to the right of the error line
                     rect.setX(cx);
                     rect.setY(Math.min(cy, lineY));
-                    
                     errorSquares.add(rect);
                 }
             }
