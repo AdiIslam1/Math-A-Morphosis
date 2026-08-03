@@ -63,7 +63,35 @@ public class RiemannView extends VBox {
         typeBox = new ComboBox<>();
         typeBox.getItems().addAll("Definite", "Indefinite");
         typeBox.setValue("Definite");
-        typeBox.setStyle("-fx-background-color: #1e293b; -fx-border-color: #38bdf8; -fx-border-radius: 5; -fx-background-radius: 5;");
+        typeBox.setStyle("-fx-background-color: #1e293b; -fx-border-color: #38bdf8; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-weight: bold;");
+        
+        javafx.util.Callback<javafx.scene.control.ListView<String>, javafx.scene.control.ListCell<String>> cellFactory = lv -> new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setStyle("-fx-text-fill: #38bdf8; -fx-background-color: transparent;");
+                }
+            }
+        };
+        typeBox.setButtonCell(cellFactory.call(null));
+        typeBox.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setStyle("-fx-text-fill: #38bdf8; -fx-background-color: #1e293b;");
+                    setOnMouseEntered(e -> setStyle("-fx-text-fill: #38bdf8; -fx-background-color: #334155;"));
+                    setOnMouseExited(e -> setStyle("-fx-text-fill: #38bdf8; -fx-background-color: #1e293b;"));
+                }
+            }
+        });
         
         Label boundsLabel = new Label("Bounds [a, b]:");
         boundsLabel.setStyle(labelStyle);
@@ -88,11 +116,11 @@ public class RiemannView extends VBox {
         // Header Stats
         HBox statsBox = new HBox(50);
         statsBox.setAlignment(Pos.CENTER);
-        estAreaLabel = new Label("Estimated Area: 0.00");
+        estAreaLabel = new Label("Estimated Area: 0.0000");
         estAreaLabel.setTextFill(Color.web("#ef4444")); // Starts Red
         estAreaLabel.setFont(Font.font("Inter", 24));
         
-        actAreaLabel = new Label("Actual Area: 0.00");
+        actAreaLabel = new Label("Actual Area: 0.0000");
         actAreaLabel.setTextFill(Color.web("#39ff14")); // Always Green
         actAreaLabel.setFont(Font.font("Inter", 24));
         statsBox.getChildren().addAll(estAreaLabel, actAreaLabel);
@@ -109,8 +137,22 @@ public class RiemannView extends VBox {
         nSlider = new Slider(0, 100, 0); // 0 to 100 percentage
         nSlider.setPrefWidth(600);
         nSlider.setShowTickMarks(false);
-        nSlider.valueProperty().addListener((obs, oldVal, newVal) -> draw(getMappedN()));
-        sliderBox.getChildren().addAll(sliderLabel, nSlider);
+        Label nValueLabel = new Label("1");
+        nValueLabel.setTextFill(Color.web("#38bdf8"));
+        nValueLabel.setFont(Font.font("Inter", 16));
+        HBox sliderHBox = new HBox(10);
+        sliderHBox.setAlignment(Pos.CENTER);
+        sliderHBox.getChildren().addAll(nSlider, nValueLabel);
+        nSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int n = getMappedN();
+            if (nSlider.getValue() >= 99.9) {
+                nValueLabel.setText("∞");
+            } else {
+                nValueLabel.setText(String.valueOf(n));
+            }
+            draw(n);
+        });
+        sliderBox.getChildren().addAll(sliderLabel, sliderHBox);
 
         // Playback Controls
         HBox controlBox = new HBox(15);
@@ -310,6 +352,17 @@ public class RiemannView extends VBox {
             gc.strokeLine(pX0_axis, 50, pX0_axis, HEIGHT - 50);
         }
 
+        // Draw Bounds Labels (a and b) below the x-axis
+        gc.setFill(Color.web("#eab308")); // Yellow text for bounds
+        gc.setFont(Font.font("Inter", 13));
+        double textY = Math.min(Math.max(pY0_axis + 18, 68), HEIGHT - 15);
+        String aText = String.format((aValue == (long) aValue) ? "%d" : "%.2f", (long) aValue);
+        String bText = String.format((bValue == (long) bValue) ? "%d" : "%.2f", (long) bValue);
+        if (aValue != (long) aValue) aText = String.format("%.2f", aValue);
+        if (bValue != (long) bValue) bText = String.format("%.2f", bValue);
+        gc.fillText(aText, 40, textY);
+        gc.fillText(bText, WIDTH - 60, textY);
+
         double dx = rangeX / n;
         double estimatedArea = 0;
 
@@ -378,12 +431,12 @@ public class RiemannView extends VBox {
 
         double actualArea = calculateActualArea(aValue, bValue);
         // Enforce exact match at max slider value to fulfill user visual requirement
-        if (n >= 200) {
+        if (nSlider.getValue() >= 99.9 || n >= 200) {
             estimatedArea = actualArea;
         }
 
-        estAreaLabel.setText(String.format("Estimated Area: %.2f", estimatedArea));
-        actAreaLabel.setText(String.format("Actual Area: %.2f", actualArea));
+        estAreaLabel.setText(String.format("Estimated Area: %.4f", estimatedArea));
+        actAreaLabel.setText(String.format("Actual Area: %.4f", actualArea));
         
         // Dynamically color the estimated area based on how close the slider is to max
         double progress = (n - 1.0) / 199.0; // 0.0 at n=1, 1.0 at n=200
