@@ -6,7 +6,11 @@ import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -16,25 +20,22 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SieveView extends VBox {
+public class SieveView extends BorderPane {
 
     private Canvas canvas;
     private GraphicsContext gc;
-    private static final int CELL_SIZE = 65;
+    private static final int CELL_SIZE = 60;
     private static final int GRID_SIZE = 10;
     private static final double CANVAS_SIZE = CELL_SIZE * GRID_SIZE;
 
     private Color[] primeColors = {
-            Color.web("#39ff14"), // 2: Neon Green
-            Color.web("#5ba8e0"), // 3: Neon Blue
-            Color.web("#ffff00"), // 5: Yellow
-            Color.web("#b026ff")  // 7: Purple
+            Color.web("#4cbf95"), // 2: Emerald Green
+            Color.web("#5ba8e0"), // 3: Sky Blue
+            Color.web("#d4a84b"), // 5: Warm Gold
+            Color.web("#9b72d4")  // 7: Purple
     };
     
-    private final Color COLOR_BG = Color.web("#14142a");
+    private final Color COLOR_BG = Color.web("#0c0c1e");
     private final Color COLOR_TEXT_IDLE = Color.web("#5ba8e0"); // Light blue numbers
     private final Color COLOR_TEXT_ELIMINATED = Color.web("#32325a"); // Dim gray-blue when pressed
 
@@ -52,22 +53,36 @@ public class SieveView extends VBox {
     private double gridAlpha = 1.0;
     private boolean isRunning = false;
 
+    // UI explanation panel elements
+    private Label stepTitleLabel;
+    private Label stepDescLabel;
+    private Label primesCountLabel;
+    private Label eliminatedCountLabel;
+    private Label statusBadgeLabel;
+
     public SieveView() {
-        this.setAlignment(Pos.CENTER);
-        this.setSpacing(20);
+        this.setStyle("-fx-background-color: #0c0c1e;");
         this.setPadding(new Insets(20));
 
+        // Center Visualization Layout
+        VBox centerBox = new VBox(15);
+        centerBox.setAlignment(Pos.CENTER);
+
+        // Header
+        Label headerTitle = new Label("Sieve of Eratosthenes");
+        headerTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;");
+        
         canvas = new Canvas(CANVAS_SIZE, CANVAS_SIZE);
         gc = canvas.getGraphicsContext2D();
 
         HBox controlBox = new HBox(15);
         controlBox.setAlignment(Pos.CENTER);
         
-        Button startBtn = new Button("Start");
+        Button startBtn = new Button("▶  Start");
         startBtn.getStyleClass().add("back-button");
-        Button pauseBtn = new Button("Pause");
+        Button pauseBtn = new Button("⏸  Pause");
         pauseBtn.getStyleClass().add("back-button");
-        Button restartBtn = new Button("Restart");
+        Button restartBtn = new Button("⟳  Restart");
         restartBtn.getStyleClass().add("back-button");
 
         startBtn.setOnAction(e -> {
@@ -90,10 +105,158 @@ public class SieveView extends VBox {
         
         controlBox.getChildren().addAll(startBtn, pauseBtn, restartBtn);
 
-        this.getChildren().addAll(canvas, controlBox);
+        centerBox.getChildren().addAll(headerTitle, canvas, controlBox);
+        this.setCenter(centerBox);
+
+        // Right Info & Explanation Side Panel
+        VBox rightPanel = buildExplanationPanel();
+        this.setRight(rightPanel);
 
         initCells();
         draw();
+        updateExplanationText();
+    }
+
+    private VBox buildExplanationPanel() {
+        VBox panel = new VBox(16);
+        panel.setPrefWidth(320);
+        panel.setPadding(new Insets(10, 16, 20, 20));
+        panel.setStyle(
+            "-fx-background-color: #14142a; " +
+            "-fx-border-color: #32325a; -fx-border-width: 0 0 0 1;"
+        );
+
+        Label panelHeader = new Label("📌 INSTRUCTIONS & CONCEPT");
+        panelHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6868a0; -fx-letter-spacing: 1px;");
+
+        // Live Step Tracker Card
+        statusBadgeLabel = new Label("READY");
+        statusBadgeLabel.setStyle(
+            "-fx-background-color: #22224a; -fx-text-fill: #5ba8e0; " +
+            "-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;"
+        );
+
+        stepTitleLabel = new Label("Initialization");
+        stepTitleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5ba8e0;");
+
+        stepDescLabel = new Label("Press Start to begin the algorithm. Watch how prime numbers are discovered and composite numbers are sieved out.");
+        stepDescLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0; -fx-wrap-text: true;");
+
+        VBox stepCard = new VBox(8, statusBadgeLabel, stepTitleLabel, stepDescLabel);
+        stepCard.setPadding(new Insets(14));
+        stepCard.setStyle(
+            "-fx-background-color: #1c1c38; -fx-border-color: #5ba8e0; " +
+            "-fx-border-width: 0 0 0 3; -fx-border-radius: 0 6 6 0; -fx-background-radius: 6;"
+        );
+
+        // Stats Card
+        Label statsHeader = new Label("📊 LIVE STATS");
+        statsHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+
+        primesCountLabel = new Label("Primes Found: 0");
+        primesCountLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #4cbf95;");
+
+        eliminatedCountLabel = new Label("Eliminated: 0 / 100");
+        eliminatedCountLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #d46b6b;");
+
+        VBox statsCard = new VBox(6, statsHeader, primesCountLabel, eliminatedCountLabel);
+        statsCard.setPadding(new Insets(12, 14, 12, 14));
+        statsCard.setStyle(
+            "-fx-background-color: #1c1c38; -fx-border-color: #32325a; " +
+            "-fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;"
+        );
+
+        // How it works / Algorithm Rules Card
+        Label rulesHeader = new Label("💡 HOW THE SIEVE WORKS");
+        rulesHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+
+        Label rule1 = new Label("1. Start with grid of 1–100.");
+        rule1.setStyle("-fx-font-size: 12px; -fx-text-fill: #b0b0d0;");
+        Label rule2 = new Label("2. 1 is neither prime nor composite.");
+        rule2.setStyle("-fx-font-size: 12px; -fx-text-fill: #b0b0d0;");
+        Label rule3 = new Label("3. Pick smallest un-eliminated (e.g. 2). It's PRIME!");
+        rule3.setStyle("-fx-font-size: 12px; -fx-text-fill: #4cbf95; -fx-font-weight: bold;");
+        Label rule4 = new Label("4. Eliminate all multiples (4, 6, 8, 10...).");
+        rule4.setStyle("-fx-font-size: 12px; -fx-text-fill: #b0b0d0;");
+        Label rule5 = new Label("5. Repeat for 3, 5, 7. Stop at √100 = 10!");
+        rule5.setStyle("-fx-font-size: 12px; -fx-text-fill: #d4a84b;");
+
+        VBox rulesCard = new VBox(6, rulesHeader, rule1, rule2, rule3, rule4, rule5);
+        rulesCard.setPadding(new Insets(12, 14, 12, 14));
+        rulesCard.setStyle(
+            "-fx-background-color: #1c1c38; -fx-border-color: #32325a; " +
+            "-fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;"
+        );
+
+        panel.getChildren().addAll(panelHeader, stepCard, statsCard, rulesCard);
+        return panel;
+    }
+
+    private void updateExplanationText() {
+        int primeCount = 0;
+        int eliminatedCount = 0;
+
+        if (cells != null) {
+            for (int i = 1; i <= 100; i++) {
+                if (cells[i].state == 1) primeCount++;
+                if (cells[i].state == -1) eliminatedCount++;
+            }
+        }
+
+        primesCountLabel.setText("Primes Found: " + primeCount);
+        eliminatedCountLabel.setText("Eliminated: " + eliminatedCount + " / 100");
+
+        switch (phase) {
+            case INIT:
+                statusBadgeLabel.setText("READY");
+                statusBadgeLabel.setStyle("-fx-background-color: #22224a; -fx-text-fill: #5ba8e0; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                stepTitleLabel.setText("Grid Loaded (1 to 100)");
+                stepDescLabel.setText("Press 'Start' to begin the sieve process. We will systematically find primes and eliminate composites.");
+                break;
+
+            case ELIMINATE_ONE:
+                statusBadgeLabel.setText("STEP 1");
+                statusBadgeLabel.setStyle("-fx-background-color: #4a222a; -fx-text-fill: #d46b6b; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                stepTitleLabel.setText("Eliminating 1");
+                stepDescLabel.setText("Number 1 is excluded because prime numbers must have exactly two distinct positive divisors: 1 and itself.");
+                break;
+
+            case FIND_PRIME:
+                statusBadgeLabel.setText("SCANNING");
+                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                stepTitleLabel.setText("Finding Next Prime...");
+                stepDescLabel.setText("Scanning the grid for the smallest remaining number that has not been eliminated.");
+                break;
+
+            case PULSE_PRIME:
+                statusBadgeLabel.setText("PRIME FOUND");
+                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                stepTitleLabel.setText("Prime Discovered: " + currentPrime);
+                stepDescLabel.setText(currentPrime + " is prime! Next, we will jump through the grid to eliminate all multiples of " + currentPrime + ".");
+                break;
+
+            case SWEEP_MULTIPLE:
+                statusBadgeLabel.setText("SWEEPING");
+                statusBadgeLabel.setStyle("-fx-background-color: #4a3c22; -fx-text-fill: #d4a84b; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                stepTitleLabel.setText("Eliminating Multiples of " + currentPrime);
+                stepDescLabel.setText("Bouncing to " + currentMultiple + " (" + currentPrime + " × " + (currentMultiple / currentPrime) + "). Since it's divisible by " + currentPrime + ", it is marked composite.");
+                break;
+
+            case FLARE_PRIMES:
+                statusBadgeLabel.setText("COMPLETE");
+                statusBadgeLabel.setStyle("-fx-background-color: #38224a; -fx-text-fill: #9b72d4; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                stepTitleLabel.setText("Sieve Finished! (up to √100 = 10)");
+                stepDescLabel.setText("We've checked all prime factors up to √100 = 10. Every remaining unmarked number in the grid is guaranteed to be PRIME!");
+                break;
+
+            case CONVERGE_PRIMES:
+            case DONE:
+                statusBadgeLabel.setText("ALL PRIMES");
+                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                stepTitleLabel.setText("25 Primes Discovered");
+                stepDescLabel.setText("The 25 prime numbers between 1 and 100 are:\n2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97.");
+                break;
+        }
     }
 
     private void initCells() {
@@ -108,6 +271,7 @@ public class SieveView extends VBox {
         phase = Phase.INIT;
         gridAlpha = 1.0;
         animProgress = 0;
+        updateExplanationText();
     }
 
     private void startAnimation() {
@@ -146,6 +310,7 @@ public class SieveView extends VBox {
                 if (animProgress > 1.0) { // Wait 1 sec
                     phase = Phase.ELIMINATE_ONE;
                     animProgress = 0;
+                    updateExplanationText();
                 }
                 break;
 
@@ -161,6 +326,7 @@ public class SieveView extends VBox {
                     phase = Phase.FIND_PRIME;
                     animProgress = 0;
                     currentPrime = 2;
+                    updateExplanationText();
                 }
                 break;
 
@@ -171,11 +337,13 @@ public class SieveView extends VBox {
                 if (currentPrime > 7) {
                     phase = Phase.FLARE_PRIMES;
                     animProgress = 0;
+                    updateExplanationText();
                 } else {
                     cells[currentPrime].state = 1; // Mark as prime
                     cells[currentPrime].color = primeColors[getPrimeIndex(currentPrime)];
                     phase = Phase.PULSE_PRIME;
                     animProgress = 0;
+                    updateExplanationText();
                 }
                 break;
 
@@ -192,6 +360,7 @@ public class SieveView extends VBox {
                     phase = Phase.SWEEP_MULTIPLE;
                     currentMultiple = currentPrime * 2;
                     jumpProgress = 0;
+                    updateExplanationText();
                 }
                 break;
 
@@ -202,6 +371,7 @@ public class SieveView extends VBox {
                     if (cells[currentMultiple].state != -1) {
                         cells[currentMultiple].state = -1;
                         cells[currentMultiple].color = COLOR_TEXT_ELIMINATED;
+                        updateExplanationText();
                     }
                     
                     currentMultiple += currentPrime;
@@ -210,6 +380,7 @@ public class SieveView extends VBox {
                         currentPrime++;
                         phase = Phase.FIND_PRIME;
                         animProgress = 0;
+                        updateExplanationText();
                     } else {
                         jumpProgress -= 1.0; 
                     }
@@ -223,7 +394,7 @@ public class SieveView extends VBox {
                 for (int i = 1; i <= 100; i++) {
                     if (cells[i].state == 0) cells[i].state = 1;
                     if (cells[i].state == 1) {
-                        cells[i].color = interpolateColor(COLOR_TEXT_IDLE, Color.web("#f97316"), flareT); 
+                        cells[i].color = interpolateColor(COLOR_TEXT_IDLE, Color.web("#d4a84b"), flareT); 
                     } else if (cells[i].state == -1) {
                         cells[i].alpha = 1.0 - flareT; // Fade out composites
                     }
@@ -232,6 +403,7 @@ public class SieveView extends VBox {
                 if (animProgress > 1.0) {
                     phase = Phase.CONVERGE_PRIMES;
                     animProgress = 0;
+                    updateExplanationText();
                     
                     int primeCount = 0;
                     for (int i = 1; i <= 100; i++) {
@@ -241,7 +413,7 @@ public class SieveView extends VBox {
                             
                             int row = primeCount / 5;
                             int col = primeCount % 5;
-                            double targetSize = CANVAS_SIZE / 5.0; // 130
+                            double targetSize = CANVAS_SIZE / 5.0; // 120
                             cells[i].targetX = col * targetSize + targetSize / 2.0;
                             cells[i].targetY = row * targetSize + targetSize / 2.0;
                             cells[i].targetScale = (targetSize - 20) / (CELL_SIZE - 16); 
@@ -269,11 +441,13 @@ public class SieveView extends VBox {
                 
                 if (animProgress >= 1.0) {
                     phase = Phase.DONE;
+                    updateExplanationText();
                 }
                 break;
 
             case DONE:
                 timer.stop();
+                updateExplanationText();
                 break;
         }
         // Smoothly update elevation for all cells
