@@ -150,17 +150,17 @@ public class VectorView extends VBox {
     }
 
     private void draw() {
-        gc.setFill(Color.web("#050505"));
+        gc.setFill(Color.web("#14142a"));
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
         // Draw Grid
-        gc.setStroke(Color.web("#1e293b"));
+        gc.setStroke(Color.web("#1c1c38"));
         gc.setLineWidth(1);
         for (int i = 0; i < WIDTH; i += 50) gc.strokeLine(i, 0, i, HEIGHT);
         for (int i = 0; i < HEIGHT; i += 50) gc.strokeLine(0, i, WIDTH, i);
 
         // Draw Axes
-        gc.setStroke(Color.web("#334155"));
+        gc.setStroke(Color.web("#32325a"));
         gc.setLineWidth(2);
         gc.strokeLine(0, ORIGIN_Y, WIDTH, ORIGIN_Y);
         gc.strokeLine(ORIGIN_X, 0, ORIGIN_X, HEIGHT);
@@ -189,12 +189,12 @@ public class VectorView extends VBox {
 
             // Foreground: Anchor Vector B (Blue, thinner)
             gc.setLineWidth(4);
-            gc.setStroke(Color.web("#0ea5e9")); // Blue
+            gc.setStroke(Color.web("#5ba8e0")); // Blue
             drawArrow(ORIGIN_X, ORIGIN_Y, ORIGIN_X + bx, ORIGIN_Y + by);
         } else {
             // Background: Anchor Vector B (Blue, thicker)
             gc.setLineWidth(8);
-            gc.setStroke(Color.web("#0ea5e9")); // Blue
+            gc.setStroke(Color.web("#5ba8e0")); // Blue
             drawArrow(ORIGIN_X, ORIGIN_Y, ORIGIN_X + bx, ORIGIN_Y + by);
 
             // Foreground: Projection (thinner)
@@ -213,7 +213,7 @@ public class VectorView extends VBox {
 
         // 3. Draw Dashed Drop Line (Shadow)
         gc.setLineWidth(2);
-        gc.setStroke(Color.web("#94a3b8")); // Light Grey
+        gc.setStroke(Color.web("#6868a0")); // Light Grey
         gc.setLineDashes(10);
         gc.strokeLine(ORIGIN_X + ax, ORIGIN_Y + ay, ORIGIN_X + projX, ORIGIN_Y + projY);
         gc.setLineDashes(0); // Reset dashes

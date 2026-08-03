@@ -17,11 +17,11 @@ public class Dashboard extends VBox {
         this.getStyleClass().add("root");
 
         // Header
-        VBox header = new VBox(10);
+        VBox header = new VBox(8);
         header.setAlignment(Pos.CENTER);
         Label title = new Label("Math-A-Morphosis");
         title.getStyleClass().add("header-text");
-        
+
         Label subtitle = new Label("A Visual Mathematics Learning Studio");
         subtitle.getStyleClass().add("subheader-text");
         header.getChildren().addAll(title, subtitle);
@@ -29,30 +29,32 @@ public class Dashboard extends VBox {
         // Modules Grid
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
-        grid.setHgap(30);
-        grid.setVgap(30);
+        grid.setHgap(28);
+        grid.setVgap(28);
 
-        // Module Cards
-        grid.add(createModuleCard("Number Theory", "Sieve of Eratosthenes", () -> onModuleSelected.accept("NUMBER_THEORY")), 0, 0);
-        grid.add(createModuleCard("Calculus", "Riemann Sum Convergence", () -> onModuleSelected.accept("CALCULUS")), 1, 0);
-        grid.add(createModuleCard("Linear Algebra", "Interactive Vector Projections", () -> onModuleSelected.accept("LINEAR_ALGEBRA")), 0, 1);
-        grid.add(createModuleCard("Statistics", "Least Squares Regression Sandbox", () -> onModuleSelected.accept("LEAST_SQUARES")), 1, 1);
-        grid.add(createModuleCard("Trigonometry", "Unit Circle Unroller", () -> onModuleSelected.accept("UNIT_CIRCLE")), 0, 2);
-        grid.add(createModuleCard("Algebra", "2D Graphing Calculator", () -> onModuleSelected.accept("GRAPHING_CALC")), 1, 2);
-        grid.add(createModuleCard("Signal Processing", "Fourier Series Epicycles", () -> onModuleSelected.accept("FOURIER_SERIES")), 0, 3);
-        grid.add(createModuleCard("Mathematical Marvels", "The Chaos Game: Order from Randomness", () -> onModuleSelected.accept("CHAOS_GAME")), 1, 3);
-        
+        // Each card gets its own accent: blue, violet, teal, amber, green, rose, violet, amber
+        grid.add(createModuleCard("Number Theory",       "Sieve of Eratosthenes",                  "card-violet", "title-violet", () -> onModuleSelected.accept("NUMBER_THEORY")),   0, 0);
+        grid.add(createModuleCard("Calculus",            "Riemann Sum Convergence",                 "card-blue",   "title-blue",   () -> onModuleSelected.accept("CALCULUS")),         1, 0);
+        grid.add(createModuleCard("Linear Algebra",      "Interactive Vector Projections",          "card-teal",   "title-teal",   () -> onModuleSelected.accept("LINEAR_ALGEBRA")),   0, 1);
+        grid.add(createModuleCard("Statistics",          "Least Squares Regression Sandbox",        "card-amber",  "title-amber",  () -> onModuleSelected.accept("LEAST_SQUARES")),    1, 1);
+        grid.add(createModuleCard("Trigonometry",        "Unit Circle Unroller",                    "card-green",  "title-green",  () -> onModuleSelected.accept("UNIT_CIRCLE")),      0, 2);
+        grid.add(createModuleCard("Algebra",             "2D Graphing Calculator",                  "card-rose",   "title-rose",   () -> onModuleSelected.accept("GRAPHING_CALC")),    1, 2);
+        grid.add(createModuleCard("Signal Processing",   "Fourier Series Epicycles",                "card-violet", "title-violet", () -> onModuleSelected.accept("FOURIER_SERIES")),   0, 3);
+        grid.add(createModuleCard("Mathematical Marvels","The Chaos Game: Order from Randomness",   "card-amber",  "title-amber",  () -> onModuleSelected.accept("CHAOS_GAME")),       1, 3);
+
         this.getChildren().addAll(header, grid);
     }
 
-    private VBox createModuleCard(String titleText, String descText, Runnable onClick) {
-        VBox card = new VBox(15);
-        card.getStyleClass().add("module-card");
-        card.setPrefSize(350, 180);
+    private VBox createModuleCard(String titleText, String descText,
+                                   String cardClass, String titleClass,
+                                   Runnable onClick) {
+        VBox card = new VBox(14);
+        card.getStyleClass().addAll("module-card", cardClass);
+        card.setPrefSize(355, 175);
         card.setAlignment(Pos.CENTER_LEFT);
 
         Label title = new Label(titleText);
-        title.getStyleClass().add("module-title");
+        title.getStyleClass().addAll("module-title", titleClass);
 
         Label desc = new Label(descText);
         desc.getStyleClass().add("module-desc");

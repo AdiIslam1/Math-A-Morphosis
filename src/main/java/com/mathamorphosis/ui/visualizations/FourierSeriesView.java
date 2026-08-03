@@ -97,7 +97,7 @@ public class FourierSeriesView extends StackPane {
 
     public FourierSeriesView() {
         this.getStyleClass().add("root");
-        this.setStyle("-fx-background-color: #050505;");
+        this.setStyle("-fx-background-color: #14142a;");
         this.setMinSize(0, 0);
         this.setPrefSize(WIDTH, HEIGHT);
         this.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -111,24 +111,24 @@ public class FourierSeriesView extends StackPane {
         VBox topBox = new VBox(5);
         topBox.setAlignment(Pos.CENTER);
         topBox.setPadding(new Insets(10, 20, 10, 20));
-        topBox.setStyle("-fx-background-color: rgba(15, 23, 42, 0.85); -fx-background-radius: 0 0 20 20; -fx-border-color: #334155; -fx-border-width: 0 1px 1px 1px; -fx-border-radius: 0 0 20 20;");
+        topBox.setStyle("-fx-background-color: rgba(15, 23, 42, 0.85); -fx-background-radius: 0 0 20 20; -fx-border-color: #32325a; -fx-border-width: 0 1px 1px 1px; -fx-border-radius: 0 0 20 20;");
         topBox.setMaxWidth(600);
 
         Label title = new Label("Fourier Series Epicycles");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
         Label subtitle = new Label("Pan with mouse drag, Zoom with scroll. Draw in 2D mode!");
-        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8;");
+        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #6868a0;");
         topBox.getChildren().addAll(title, subtitle);
         BorderPane.setAlignment(topBox, Pos.TOP_CENTER);
 
         HBox controls = new HBox(20);
         controls.setAlignment(Pos.CENTER);
         controls.setPadding(new Insets(15, 30, 15, 30));
-        controls.setStyle("-fx-background-color: rgba(15, 23, 42, 0.85); -fx-background-radius: 25; -fx-border-color: #334155; -fx-border-width: 1px; -fx-border-radius: 25;");
+        controls.setStyle("-fx-background-color: rgba(15, 23, 42, 0.85); -fx-background-radius: 25; -fx-border-color: #32325a; -fx-border-width: 1px; -fx-border-radius: 25;");
         controls.setMaxWidth(800);
 
         Label modeLabel = new Label("Mode:");
-        modeLabel.setStyle("-fx-text-fill: #38bdf8; -fx-font-size: 14px; -fx-font-weight: bold;");
+        modeLabel.setStyle("-fx-text-fill: #5ba8e0; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         modeCombo = new ComboBox<>();
         modeCombo.getItems().addAll("Square Wave (1D)", "Sawtooth Wave (1D)", "Custom Drawing (2D)");
@@ -428,7 +428,7 @@ public class FourierSeriesView extends StackPane {
         gc.clearRect(0, 0, WIDTH, HEIGHT);
 
         // Draw engineering grid to definitively show the massive canvas bounds
-        gc.setStroke(Color.web("#334155", 0.3));
+        gc.setStroke(Color.web("#32325a", 0.3));
         gc.setLineWidth(1);
         gc.beginPath();
         for (double x = offsetX % 50; x < WIDTH; x += 50) {
@@ -444,7 +444,7 @@ public class FourierSeriesView extends StackPane {
         if (isDrawing) {
             infoText.setText("Status: Drawing...");
             if (userDrawing.size() > 1) {
-                gc.setStroke(Color.web("#94a3b8"));
+                gc.setStroke(Color.web("#6868a0"));
                 gc.setLineWidth(4);
                 gc.setLineDashes(5, 5);
                 gc.beginPath();
@@ -488,7 +488,7 @@ public class FourierSeriesView extends StackPane {
 
             double r = epi.radius * scale;
 
-            gc.setStroke(Color.web("#38bdf8", 0.6));
+            gc.setStroke(Color.web("#5ba8e0", 0.6));
             gc.setLineWidth(2);
             if (epi.freq != 0) {
                 gc.strokeOval(prevX - r, prevY - r, r * 2, r * 2);
@@ -512,7 +512,7 @@ public class FourierSeriesView extends StackPane {
                 waveHistory.remove(waveHistory.size() - 1);
             }
 
-            gc.setStroke(Color.web("#cbd5e1", 0.5));
+            gc.setStroke(Color.web("#b0b0d0", 0.5));
             gc.setLineWidth(2);
             gc.setLineDashes(5, 5);
             gc.strokeLine(finalSx, finalSy, waveStartX, finalSy);
@@ -551,7 +551,7 @@ public class FourierSeriesView extends StackPane {
             }
 
             if (userDrawing.size() > 1) {
-                gc.setStroke(Color.web("#94a3b8", 0.3));
+                gc.setStroke(Color.web("#6868a0", 0.3));
                 gc.setLineWidth(2);
                 gc.beginPath();
                 for (int i = 0; i < userDrawing.size(); i++) {

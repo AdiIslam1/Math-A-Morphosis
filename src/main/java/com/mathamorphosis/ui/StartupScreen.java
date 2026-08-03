@@ -30,7 +30,7 @@ public class StartupScreen extends StackPane {
     private final String[] SYMBOLS = {"∫", "Σ", "π", "∞", "√", "θ", "Δ"};
     private final Color[] PALETTE = {
         Color.web("#39ff14"), // Neon Green
-        Color.web("#0ea5e9"), // Neon Blue
+        Color.web("#5ba8e0"), // Neon Blue
         Color.web("#ffff00"), // Neon Yellow
         Color.web("#b026ff"), // Neon Purple
         Color.web("#f97316"), // Neon Orange
@@ -68,7 +68,7 @@ public class StartupScreen extends StackPane {
 
         Label prompt = new Label("Click to start visualizing");
         prompt.getStyleClass().add("subheader-text");
-        prompt.setStyle("-fx-font-size: 24px; -fx-text-fill: #0ea5e9;");
+        prompt.setStyle("-fx-font-size: 24px; -fx-text-fill: #5ba8e0;");
 
         // Pulse Animation for the prompt
         Timeline pulse = new Timeline(
@@ -99,7 +99,7 @@ public class StartupScreen extends StackPane {
     }
 
     private void draw(double width, double height) {
-        gc.setFill(Color.web("#050505"));
+        gc.setFill(Color.web("#14142a"));
         gc.fillRect(0, 0, width, height);
 
         // Update particles

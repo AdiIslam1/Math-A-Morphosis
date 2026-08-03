@@ -52,7 +52,7 @@ public class GraphingCalculatorView extends BorderPane {
     private final Text hoverCoords;
 
     private final Color[] colors = new Color[] {
-        Color.web("#38bdf8"), // light blue
+        Color.web("#5ba8e0"), // light blue
         Color.web("#facc15"), // yellow
         Color.web("#a3e635"), // lime
         Color.web("#f43f5e"), // rose
@@ -74,7 +74,7 @@ public class GraphingCalculatorView extends BorderPane {
             line.setEffect(new DropShadow(10, color));
             
             input = new TextField(expr);
-            input.setStyle("-fx-background-color: #1e293b; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-border-color: " + toHex(color) + "; -fx-border-radius: 5px;");
+            input.setStyle("-fx-background-color: #1c1c38; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-border-color: " + toHex(color) + "; -fx-border-radius: 5px;");
             input.textProperty().addListener((obs, oldV, newV) -> plotFunctions());
             
             HBox.setHgrow(input, Priority.ALWAYS);
@@ -96,7 +96,7 @@ public class GraphingCalculatorView extends BorderPane {
         // Side Panel for functions
         VBox sidePanel = new VBox(15);
         sidePanel.setPrefWidth(300);
-        sidePanel.setStyle("-fx-background-color: #0f172a; -fx-border-color: #334155; -fx-border-width: 0 2px 0 0;");
+        sidePanel.setStyle("-fx-background-color: #100f28; -fx-border-color: #32325a; -fx-border-width: 0 2px 0 0;");
         sidePanel.setPadding(new Insets(20));
         
         Label title = new Label("Functions");
@@ -106,11 +106,11 @@ public class GraphingCalculatorView extends BorderPane {
         
         ScrollPane scrollPane = new ScrollPane(functionsBox);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: #0f172a; -fx-background-color: transparent; -fx-border-color: transparent;");
+        scrollPane.setStyle("-fx-background: #100f28; -fx-background-color: transparent; -fx-border-color: transparent;");
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
         
         Button addFuncBtn = new Button("+ Add Function");
-        addFuncBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #0ea5e9; -fx-font-weight: bold; -fx-background-color: #1e293b; -fx-border-color: #0ea5e9; -fx-border-radius: 5px; -fx-cursor: hand;");
+        addFuncBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold; -fx-background-color: #1c1c38; -fx-border-color: #5ba8e0; -fx-border-radius: 5px; -fx-cursor: hand;");
         addFuncBtn.setMaxWidth(Double.MAX_VALUE);
         addFuncBtn.setOnAction(e -> addFunction(""));
         
@@ -118,7 +118,7 @@ public class GraphingCalculatorView extends BorderPane {
         
         // Graph Pane (Full window rest area)
         graphPane = new Pane();
-        graphPane.setStyle("-fx-background-color: #050505;"); // Very dark background
+        graphPane.setStyle("-fx-background-color: #14142a;"); // Very dark background
         
         javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle();
         clip.widthProperty().bind(graphPane.widthProperty());
@@ -143,12 +143,12 @@ public class GraphingCalculatorView extends BorderPane {
         graphPane.getChildren().addAll(gridPane, drawingPane, overlayPane);
         
         crosshairX = new Line();
-        crosshairX.setStroke(Color.web("#cbd5e1", 0.5));
+        crosshairX.setStroke(Color.web("#b0b0d0", 0.5));
         crosshairX.getStrokeDashArray().addAll(5d, 5d);
         crosshairX.setVisible(false);
         
         crosshairY = new Line();
-        crosshairY.setStroke(Color.web("#cbd5e1", 0.5));
+        crosshairY.setStroke(Color.web("#b0b0d0", 0.5));
         crosshairY.getStrokeDashArray().addAll(5d, 5d);
         crosshairY.setVisible(false);
         
@@ -294,14 +294,14 @@ public class GraphingCalculatorView extends BorderPane {
         
         for (double x = startX; x <= WIDTH; x += stepScreen) {
             Line vLine = new Line(x, 0, x, HEIGHT);
-            vLine.setStroke(Color.web("#1e293b"));
+            vLine.setStroke(Color.web("#1c1c38"));
             vLine.setStrokeWidth(1);
             gridPane.getChildren().add(vLine);
             
             double mx = (x - offsetX) / scale;
             if (Math.abs(mx) > 0.001) {
                 Text t = new Text(String.format(stepMath < 1 ? "%.1f" : "%.0f", mx));
-                t.setFill(Color.web("#64748b"));
+                t.setFill(Color.web("#6868a0"));
                 t.setFont(Font.font("Segoe UI", 11));
                 t.setX(x + 5);
                 t.setY(offsetY + 15);
@@ -316,14 +316,14 @@ public class GraphingCalculatorView extends BorderPane {
         
         for (double y = startY; y <= HEIGHT; y += stepScreen) {
             Line hLine = new Line(0, y, WIDTH, y);
-            hLine.setStroke(Color.web("#1e293b"));
+            hLine.setStroke(Color.web("#1c1c38"));
             hLine.setStrokeWidth(1);
             gridPane.getChildren().add(hLine);
             
             double my = (offsetY - y) / scale;
             if (Math.abs(my) > 0.001) {
                 Text t = new Text(String.format(stepMath < 1 ? "%.1f" : "%.0f", my));
-                t.setFill(Color.web("#64748b"));
+                t.setFill(Color.web("#6868a0"));
                 t.setFont(Font.font("Segoe UI", 11));
                 t.setX(offsetX - 25);
                 t.setY(y - 5);
@@ -334,12 +334,12 @@ public class GraphingCalculatorView extends BorderPane {
         }
         
         Line xAxis = new Line(0, offsetY, WIDTH, offsetY);
-        xAxis.setStroke(Color.web("#cbd5e1"));
+        xAxis.setStroke(Color.web("#b0b0d0"));
         xAxis.setStrokeWidth(2);
         gridPane.getChildren().add(xAxis);
         
         Line yAxis = new Line(offsetX, 0, offsetX, HEIGHT);
-        yAxis.setStroke(Color.web("#cbd5e1"));
+        yAxis.setStroke(Color.web("#b0b0d0"));
         yAxis.setStrokeWidth(2);
         gridPane.getChildren().add(yAxis);
     }

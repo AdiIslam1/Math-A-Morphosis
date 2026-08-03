@@ -38,8 +38,6 @@ public class ChaosGameView extends BorderPane {
     // ── Canvas ──────────────────────────────────────────────────────────────
     private Canvas canvas;
     private GraphicsContext gc;
-    private final double WIDTH  = 800;
-    private final double HEIGHT = 800;
     private Pane sandbox;
 
     // ── Game state ───────────────────────────────────────────────────────────
@@ -98,7 +96,7 @@ public class ChaosGameView extends BorderPane {
         instructionLabel = new Label();
         instructionLabel.setStyle(
             "-fx-font-size:18px; -fx-text-fill:#eab308; -fx-font-weight:bold;" +
-            " -fx-padding:12px; -fx-background-color:#1a1a1a;");
+            " -fx-padding:12px; -fx-background-color:#1c1c38;");
         instructionLabel.setAlignment(Pos.CENTER);
         instructionLabel.setMaxWidth(Double.MAX_VALUE);
         this.setTop(instructionLabel);
@@ -106,30 +104,37 @@ public class ChaosGameView extends BorderPane {
 
     private void buildCenter() {
         sandbox = new Pane();
-        sandbox.setPrefSize(WIDTH, HEIGHT);
-        sandbox.setMaxSize(WIDTH, HEIGHT);
-        sandbox.setStyle("-fx-background-color:#050505;");
+        sandbox.setStyle("-fx-background-color:#14142a;");
 
-        canvas = new Canvas(WIDTH, HEIGHT);
-        gc     = canvas.getGraphicsContext2D();
+        canvas = new Canvas();
+        canvas.widthProperty().bind(sandbox.widthProperty());
+        canvas.heightProperty().bind(sandbox.heightProperty());
+
+        // Redraw/clear whenever the canvas resizes
+        canvas.widthProperty().addListener(o -> {
+            if (currentState == SetupState.READY) softReset();
+        });
+        canvas.heightProperty().addListener(o -> {
+            if (currentState == SetupState.READY) softReset();
+        });
+
+        gc = canvas.getGraphicsContext2D();
         sandbox.getChildren().add(canvas);
-
-        StackPane wrap = new StackPane(sandbox);
-        wrap.setAlignment(Pos.CENTER);
 
         // Thin result strip below canvas
         diceResultLabel = new Label("");
         diceResultLabel.setStyle(
             "-fx-font-size:15px; -fx-font-weight:bold; -fx-padding:6 14;" +
-            " -fx-background-color:#0e0e0e; -fx-background-radius:0;");
+            " -fx-background-color:#1a1a36; -fx-background-radius:0;");
         diceResultLabel.setAlignment(Pos.CENTER);
         diceResultLabel.setMaxWidth(Double.MAX_VALUE);
         diceResultLabel.setPrefHeight(36);
         diceResultLabel.setMinHeight(36);
 
-        VBox canvasWithStrip = new VBox(0, wrap, diceResultLabel);
-        canvasWithStrip.setAlignment(Pos.CENTER);
-        this.setCenter(canvasWithStrip);
+        // sandbox goes directly in center so it fills all available space;
+        // diceResultLabel goes at the bottom of the BorderPane
+        this.setCenter(sandbox);
+        this.setBottom(diceResultLabel);
     }
 
     private void buildRightPanel() {
@@ -137,7 +142,7 @@ public class ChaosGameView extends BorderPane {
         panel.setPadding(new Insets(20));
         panel.setAlignment(Pos.TOP_CENTER);
         panel.setPrefWidth(320);
-        panel.setStyle("-fx-background-color:#1a1a1a;");
+        panel.setStyle("-fx-background-color:#1c1c38;");
 
         // ── Header
         Label titleLabel = new Label("CONTROLS");
@@ -451,8 +456,8 @@ public class ChaosGameView extends BorderPane {
 
         c.setOnMouseDragged(e -> {
             if (currentState != SetupState.READY) return;
-            double nx = Math.max(0, Math.min(WIDTH,  e.getX()));
-            double ny = Math.max(0, Math.min(HEIGHT, e.getY()));
+            double nx = Math.max(0, Math.min(canvas.getWidth(),  e.getX()));
+            double ny = Math.max(0, Math.min(canvas.getHeight(), e.getY()));
             c.setCenterX(nx);
             c.setCenterY(ny);
             lbl.setLayoutX(nx + 13);
@@ -470,7 +475,7 @@ public class ChaosGameView extends BorderPane {
     // ── Reset helpers ────────────────────────────────────────────────────────
 
     private void fullReset() {
-        gc.clearRect(0, 0, WIDTH, HEIGHT);
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         if (timer        != null) timer.stop();
         if (laserTimeline != null) laserTimeline.stop();
         if (diceTimeline  != null) diceTimeline.stop();
@@ -504,8 +509,11 @@ public class ChaosGameView extends BorderPane {
             if (isManualMode) diceBtn.setDisable(false);
         }
         sandbox.getChildren().removeIf(n -> n instanceof Line);
-        gc.clearRect(0, 0, WIDTH, HEIGHT);
-        currentPoint = new Point2D(WIDTH / 2, HEIGHT / 2);
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        
+        double w = canvas.getWidth() == 0 ? 800 : canvas.getWidth();
+        double h = canvas.getHeight() == 0 ? 800 : canvas.getHeight();
+        currentPoint = new Point2D(w / 2, h / 2);
     }
 
     // ── Auto engine ──────────────────────────────────────────────────────────

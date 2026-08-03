@@ -60,7 +60,7 @@ public class LeastSquaresView extends BorderPane {
         this.getStyleClass().add("root");
 
         gridPane = new Pane();
-        gridPane.setStyle("-fx-background-color: #1e293b; -fx-background-radius: 12px; -fx-border-color: #334155; -fx-border-radius: 12px; -fx-border-width: 2px;");
+        gridPane.setStyle("-fx-background-color: #1c1c38; -fx-background-radius: 12px; -fx-border-color: #32325a; -fx-border-radius: 12px; -fx-border-width: 2px;");
         gridPane.setPrefSize(WIDTH, HEIGHT);
         
         drawAxesAndGrid();
@@ -75,7 +75,7 @@ public class LeastSquaresView extends BorderPane {
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
         
         instructionLabel = new Label("Click anywhere on the grid to add data points. Drag them to adjust.");
-        instructionLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #94a3b8;");
+        instructionLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6868a0;");
         
         topBox.getChildren().addAll(title, instructionLabel);
 
@@ -84,7 +84,7 @@ public class LeastSquaresView extends BorderPane {
         controls.setPadding(new Insets(20));
 
         userGuessToggle = new ToggleButton("1. Draw Your Guess Line");
-        userGuessToggle.setStyle("-fx-font-size: 14px; -fx-text-fill: #cbd5e1; -fx-background-color: #27354f; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;");
+        userGuessToggle.setStyle("-fx-font-size: 14px; -fx-text-fill: #b0b0d0; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;");
         userGuessToggle.setOnAction(e -> {
             if (!userGuessToggle.isSelected()) {
                 clearUserGuess();
@@ -96,15 +96,15 @@ public class LeastSquaresView extends BorderPane {
         });
 
         calcBestFitBtn = new Button("2. Calculate Best Fit");
-        calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #0ea5e9; -fx-font-weight: bold; -fx-background-color: #27354f; -fx-padding: 10px 20px; -fx-border-color: #0ea5e9; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;");
+        calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-border-color: #5ba8e0; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;");
         calcBestFitBtn.setOnAction(e -> calculateBestFit());
         
-        calcBestFitBtn.setOnMouseEntered(e -> calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-color: #0ea5e9; -fx-padding: 10px 20px; -fx-border-color: #0ea5e9; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;"));
-        calcBestFitBtn.setOnMouseExited(e -> calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #0ea5e9; -fx-font-weight: bold; -fx-background-color: #27354f; -fx-padding: 10px 20px; -fx-border-color: #0ea5e9; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;"));
+        calcBestFitBtn.setOnMouseEntered(e -> calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-color: #5ba8e0; -fx-padding: 10px 20px; -fx-border-color: #5ba8e0; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;"));
+        calcBestFitBtn.setOnMouseExited(e -> calcBestFitBtn.setStyle("-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-border-color: #5ba8e0; -fx-border-radius: 8px; -fx-border-width: 2px; -fx-cursor: hand;"));
 
 
         showErrorsToggle = new ToggleButton("3. Show Error Squares");
-        showErrorsToggle.setStyle("-fx-font-size: 14px; -fx-text-fill: #cbd5e1; -fx-background-color: #27354f; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;");
+        showErrorsToggle.setStyle("-fx-font-size: 14px; -fx-text-fill: #b0b0d0; -fx-background-color: #22224a; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;");
         showErrorsToggle.setOnAction(e -> updateVisuals());
 
         controls.getChildren().addAll(userGuessToggle, calcBestFitBtn, showErrorsToggle);
@@ -136,12 +136,12 @@ public class LeastSquaresView extends BorderPane {
         for (int i = 0; i <= X_MAX; i++) {
             double sx = toScreenX(i);
             Line vLine = new Line(sx, MARGIN, sx, HEIGHT - MARGIN);
-            vLine.setStroke(Color.web("#334155", 0.5));
+            vLine.setStroke(Color.web("#32325a", 0.5));
             gridPane.getChildren().add(vLine);
             
             if (i % 5 == 0 && i > 0) {
                 Text label = new Text(String.valueOf(i));
-                label.setFill(Color.web("#94a3b8"));
+                label.setFill(Color.web("#6868a0"));
                 label.setFont(Font.font("Segoe UI", 12));
                 label.setX(sx - 5);
                 label.setY(HEIGHT - MARGIN + 20);
@@ -151,12 +151,12 @@ public class LeastSquaresView extends BorderPane {
         for (int i = 0; i <= Y_MAX; i++) {
             double sy = toScreenY(i);
             Line hLine = new Line(MARGIN, sy, WIDTH - MARGIN, sy);
-            hLine.setStroke(Color.web("#334155", 0.5));
+            hLine.setStroke(Color.web("#32325a", 0.5));
             gridPane.getChildren().add(hLine);
             
             if (i % 5 == 0 && i > 0) {
                 Text label = new Text(String.valueOf(i));
-                label.setFill(Color.web("#94a3b8"));
+                label.setFill(Color.web("#6868a0"));
                 label.setFont(Font.font("Segoe UI", 12));
                 label.setX(MARGIN - 25);
                 label.setY(sy + 5);
@@ -166,11 +166,11 @@ public class LeastSquaresView extends BorderPane {
         
         // Axes
         Line xAxis = new Line(MARGIN, HEIGHT - MARGIN, WIDTH - MARGIN + 10, HEIGHT - MARGIN);
-        xAxis.setStroke(Color.web("#94a3b8"));
+        xAxis.setStroke(Color.web("#6868a0"));
         xAxis.setStrokeWidth(2);
         
         Line yAxis = new Line(MARGIN, HEIGHT - MARGIN, MARGIN, MARGIN - 10);
-        yAxis.setStroke(Color.web("#94a3b8"));
+        yAxis.setStroke(Color.web("#6868a0"));
         yAxis.setStrokeWidth(2);
         
         gridPane.getChildren().addAll(xAxis, yAxis);
@@ -193,7 +193,7 @@ public class LeastSquaresView extends BorderPane {
             } else if (userGuessClicks == 1) {
                 clearUserGuess();
                 userGuessLine = new Line(guessX1, guessY1, event.getX(), event.getY());
-                userGuessLine.setStroke(Color.web("#cbd5e1"));
+                userGuessLine.setStroke(Color.web("#b0b0d0"));
                 userGuessLine.setStrokeWidth(3);
                 userGuessLine.getStrokeDashArray().addAll(10d, 10d);
                 userGuessLine.setEffect(new DropShadow(5, Color.BLACK));
@@ -326,9 +326,9 @@ public class LeastSquaresView extends BorderPane {
 
         if (bestFitLine == null) {
             bestFitLine = new Line();
-            bestFitLine.setStroke(Color.web("#0ea5e9")); // Electric blue
+            bestFitLine.setStroke(Color.web("#5ba8e0")); // Electric blue
             bestFitLine.setStrokeWidth(5);
-            bestFitLine.setEffect(new DropShadow(15, Color.web("#0ea5e9")));
+            bestFitLine.setEffect(new DropShadow(15, Color.web("#5ba8e0")));
             gridPane.getChildren().add(bestFitLine);
         }
 

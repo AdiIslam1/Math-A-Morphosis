@@ -29,14 +29,14 @@ public class SieveView extends VBox {
 
     private Color[] primeColors = {
             Color.web("#39ff14"), // 2: Neon Green
-            Color.web("#0ea5e9"), // 3: Neon Blue
+            Color.web("#5ba8e0"), // 3: Neon Blue
             Color.web("#ffff00"), // 5: Yellow
             Color.web("#b026ff")  // 7: Purple
     };
     
-    private final Color COLOR_BG = Color.web("#050505");
-    private final Color COLOR_TEXT_IDLE = Color.web("#38bdf8"); // Light blue numbers
-    private final Color COLOR_TEXT_ELIMINATED = Color.web("#334155"); // Dim gray-blue when pressed
+    private final Color COLOR_BG = Color.web("#14142a");
+    private final Color COLOR_TEXT_IDLE = Color.web("#5ba8e0"); // Light blue numbers
+    private final Color COLOR_TEXT_ELIMINATED = Color.web("#32325a"); // Dim gray-blue when pressed
 
     private AnimationTimer timer;
     private Cell[] cells;
