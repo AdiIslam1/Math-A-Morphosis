@@ -57,9 +57,9 @@ public class LeastSquaresView extends BorderPane {
     private boolean bestFitActive = false;
 
     // Coordinate System
-    private final double WIDTH  = 800;
-    private final double HEIGHT = 600;
-    private final double MARGIN = 50;
+    private final double WIDTH  = 1000;
+    private final double HEIGHT = 680;
+    private final double MARGIN = 60;
     private final double GRAPH_W = WIDTH  - 2 * MARGIN;
     private final double GRAPH_H = HEIGHT - 2 * MARGIN;
 
@@ -86,22 +86,22 @@ public class LeastSquaresView extends BorderPane {
 
         // ── Title ─────────────────────────────────────────────────────────
         Label title = new Label("Least Squares Regression Sandbox");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;");
+        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;");
 
         instructionLabel = new Label("Click anywhere on the grid to add data points. Drag them to adjust.");
-        instructionLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #6868a0;");
+        instructionLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6868a0;");
 
         // ── Live result labels (stored for updates) ───────────────────────
-        livePointCount     = makeLiveLabel("Data Points: 0",    "#f0f0f8", 15, true);
-        liveSlopeLabel     = makeLiveLabel("m (slope) = \u2014",   "#4cbf95", 15, true);
-        liveInterceptLabel = makeLiveLabel("b (intercept) = \u2014", "#5ba8e0", 15, true);
-        liveEquationLabel  = makeLiveLabel("ŷ = \u2014",           "#d4a84b", 14, false);
+        livePointCount     = makeLiveLabel("Data Points: 0",    "#f0f0f8", 18, true);
+        liveSlopeLabel     = makeLiveLabel("m (slope) = \u2014",   "#4cbf95", 18, true);
+        liveInterceptLabel = makeLiveLabel("b (intercept) = \u2014", "#5ba8e0", 18, true);
+        liveEquationLabel  = makeLiveLabel("ŷ = \u2014",           "#d4a84b", 17, true);
 
         // ── Controls ──────────────────────────────────────────────────────
         userGuessToggle = new ToggleButton("1. Draw Your Guess Line");
         userGuessToggle.setStyle(
-                "-fx-font-size: 14px; -fx-text-fill: #b0b0d0;" +
-                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #b0b0d0;" +
+                "-fx-background-color: #22224a; -fx-padding: 12px 24px;" +
                 "-fx-background-radius: 8px; -fx-cursor: hand;"
         );
         userGuessToggle.setOnAction(e -> {
@@ -116,36 +116,36 @@ public class LeastSquaresView extends BorderPane {
 
         calcBestFitBtn = new Button("2. Calculate Best Fit");
         calcBestFitBtn.setStyle(
-                "-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;" +
-                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-font-size: 15px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;" +
+                "-fx-background-color: #22224a; -fx-padding: 12px 24px;" +
                 "-fx-border-color: #5ba8e0; -fx-border-radius: 8px;" +
                 "-fx-border-width: 2px; -fx-cursor: hand;"
         );
         calcBestFitBtn.setOnAction(e -> calculateBestFit());
         calcBestFitBtn.setOnMouseEntered(e -> calcBestFitBtn.setStyle(
-                "-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-font-weight: bold;" +
-                "-fx-background-color: #5ba8e0; -fx-padding: 10px 20px;" +
+                "-fx-font-size: 15px; -fx-text-fill: #ffffff; -fx-font-weight: bold;" +
+                "-fx-background-color: #5ba8e0; -fx-padding: 12px 24px;" +
                 "-fx-border-color: #5ba8e0; -fx-border-radius: 8px;" +
                 "-fx-border-width: 2px; -fx-cursor: hand;"
         ));
         calcBestFitBtn.setOnMouseExited(e -> calcBestFitBtn.setStyle(
-                "-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;" +
-                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-font-size: 15px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;" +
+                "-fx-background-color: #22224a; -fx-padding: 12px 24px;" +
                 "-fx-border-color: #5ba8e0; -fx-border-radius: 8px;" +
                 "-fx-border-width: 2px; -fx-cursor: hand;"
         ));
 
         showErrorsToggle = new ToggleButton("3. Show Error Squares");
         showErrorsToggle.setStyle(
-                "-fx-font-size: 14px; -fx-text-fill: #b0b0d0;" +
-                "-fx-background-color: #22224a; -fx-padding: 10px 20px;" +
+                "-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #b0b0d0;" +
+                "-fx-background-color: #22224a; -fx-padding: 12px 24px;" +
                 "-fx-background-radius: 8px; -fx-cursor: hand;"
         );
         showErrorsToggle.setOnAction(e -> updateVisuals());
 
-        HBox controls = new HBox(20);
+        HBox controls = new HBox(24);
         controls.setAlignment(Pos.CENTER);
-        controls.setPadding(new Insets(12, 0, 8, 0));
+        controls.setPadding(new Insets(14, 0, 10, 0));
         controls.getChildren().addAll(userGuessToggle, calcBestFitBtn, showErrorsToggle);
 
         // ── Right explanation panel (Statistics) ─────────────────────────
@@ -157,7 +157,7 @@ public class LeastSquaresView extends BorderPane {
         mainContent.getChildren().addAll(gridPane, statsPanel);
 
         // ── Center VBox ───────────────────────────────────────────────────
-        VBox centerBox = new VBox(12);
+        VBox centerBox = new VBox(14);
         centerBox.setAlignment(Pos.CENTER);
         centerBox.setPadding(new Insets(16, 24, 16, 24));
         centerBox.setStyle("-fx-background-color: #0c0c1e;");
@@ -172,31 +172,31 @@ public class LeastSquaresView extends BorderPane {
     // ─────────────────────────────────────────────────────────────────────────
 
     private VBox buildExplanationPanel() {
-        VBox panel = new VBox(14);
-        panel.setPadding(new Insets(16));
+        VBox panel = new VBox(16);
+        panel.setPadding(new Insets(20));
         panel.setStyle("-fx-background-color: #14142a;");
 
         // Section label
-        Label sectionLabel = new Label("STATISTICS");
+        Label sectionLabel = new Label("STATISTICS & CONTROLS");
         sectionLabel.setStyle(
-                "-fx-font-size: 13px; -fx-font-weight: bold;" +
+                "-fx-font-size: 14px; -fx-font-weight: bold;" +
                 "-fx-text-fill: #6868a0; -fx-letter-spacing: 2;"
         );
 
         // ── WHAT IS THIS card ──────────────────────────────────────────────
-        VBox whatCard = new VBox(10);
+        VBox whatCard = new VBox(12);
         whatCard.setStyle(
                 "-fx-background-color: #1c1c38;" +
                 "-fx-border-color: #d4a84b;" +
                 "-fx-border-width: 0 0 0 4;" +
                 "-fx-background-radius: 8;" +
                 "-fx-border-radius: 8;" +
-                "-fx-padding: 18;"
+                "-fx-padding: 20;"
         );
 
         Label whatTitle = new Label("Least Squares Regression");
         whatTitle.setStyle(
-                "-fx-font-size: 20px; -fx-font-weight: bold;" +
+                "-fx-font-size: 22px; -fx-font-weight: bold;" +
                 "-fx-text-fill: #d4a84b;"
         );
 
@@ -204,60 +204,60 @@ public class LeastSquaresView extends BorderPane {
                 "Place data points and find the single straight line that minimises " +
                 "the total squared vertical distance from every point to the line."
         );
-        whatDesc.setStyle("-fx-font-size: 15px; -fx-text-fill: #d0d0e8;");
+        whatDesc.setStyle("-fx-font-size: 16px; -fx-text-fill: #d0d0e8; -fx-line-spacing: 3;");
         whatDesc.setWrapText(true);
 
         whatCard.getChildren().addAll(whatTitle, whatDesc);
 
         // ── THE FORMULA card ───────────────────────────────────────────────
-        VBox formulaCard = new VBox(8);
+        VBox formulaCard = new VBox(10);
         formulaCard.setStyle(
                 "-fx-background-color: #1c1c38;" +
                 "-fx-border-color: #32325a;" +
                 "-fx-border-width: 1;" +
                 "-fx-background-radius: 8;" +
                 "-fx-border-radius: 8;" +
-                "-fx-padding: 16;"
+                "-fx-padding: 18;"
         );
 
         Label formulaHeader = new Label("THE FORMULA");
-        formulaHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+        formulaHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
 
         Label formulaMain = new Label("ŷ = mx + b");
         formulaMain.setStyle(
-                "-fx-font-size: 22px; -fx-font-weight: bold;" +
+                "-fx-font-size: 26px; -fx-font-weight: bold;" +
                 "-fx-text-fill: #d4a84b;" +
                 "-fx-font-family: 'Courier New', monospace;"
         );
 
         Label mLabel = new Label("m = \u03A3(x\u1D62 \u2212 x\u0305)(y\u1D62 \u2212 y\u0305) / \u03A3(x\u1D62 \u2212 x\u0305)\u00B2");
-        mLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0;");
+        mLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #b0b0d0;");
         mLabel.setWrapText(true);
 
         Label bLabel = new Label("b = y\u0305 \u2212 m\u00B7x\u0305");
-        bLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0;");
+        bLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #b0b0d0;");
 
         Label noteLabel = new Label("Where x\u0305, y\u0305 are the means of x and y");
         noteLabel.setStyle(
-                "-fx-font-size: 12px; -fx-text-fill: #6868a0;" +
+                "-fx-font-size: 13px; -fx-text-fill: #6868a0;" +
                 "-fx-font-style: italic;"
         );
 
         formulaCard.getChildren().addAll(formulaHeader, formulaMain, mLabel, bLabel, noteLabel);
 
         // ── LIVE RESULTS card ──────────────────────────────────────────────
-        VBox liveCard = new VBox(8);
+        VBox liveCard = new VBox(10);
         liveCard.setStyle(
                 "-fx-background-color: #1c1c38;" +
                 "-fx-border-color: #32325a;" +
                 "-fx-border-width: 1;" +
                 "-fx-background-radius: 8;" +
                 "-fx-border-radius: 8;" +
-                "-fx-padding: 16;"
+                "-fx-padding: 18;"
         );
 
         Label liveHeader = new Label("LIVE RESULTS");
-        liveHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+        liveHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
 
         liveCard.getChildren().addAll(
                 liveHeader,
@@ -268,31 +268,31 @@ public class LeastSquaresView extends BorderPane {
         );
 
         // ── HOW TO USE card ────────────────────────────────────────────────
-        VBox howCard = new VBox(6);
+        VBox howCard = new VBox(8);
         howCard.setStyle(
                 "-fx-background-color: #1c1c38;" +
                 "-fx-border-color: #32325a;" +
                 "-fx-border-width: 1;" +
                 "-fx-background-radius: 8;" +
                 "-fx-border-radius: 8;" +
-                "-fx-padding: 14;"
+                "-fx-padding: 18;"
         );
 
         Label howHeader = new Label("HOW TO USE");
-        howHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+        howHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
 
         String[] steps = {
-            "1. Click the grid to place data points",
-            "2. Optionally draw your guess line first",
+            "1. Click grid to place data points",
+            "2. Draw your guess line first",
             "3. Hit Calculate Best Fit to see the math",
             "4. Toggle error squares to visualise residuals",
-            "5. Drag points to watch the line react live"
+            "5. Drag points to watch line react live"
         };
         howCard.getChildren().add(howHeader);
         for (String step : steps) {
             Label stepLabel = new Label(step);
             stepLabel.setStyle(
-                    "-fx-font-size: 13px; -fx-text-fill: #b0b0d0;" +
+                    "-fx-font-size: 15px; -fx-text-fill: #b0b0d0;" +
                     "-fx-line-spacing: 3;"
             );
             stepLabel.setWrapText(true);
@@ -300,18 +300,18 @@ public class LeastSquaresView extends BorderPane {
         }
 
         // ── WHY IT MATTERS card ────────────────────────────────────────────
-        VBox whyCard = new VBox(6);
+        VBox whyCard = new VBox(8);
         whyCard.setStyle(
                 "-fx-background-color: #1c1c38;" +
                 "-fx-border-color: #32325a;" +
                 "-fx-border-width: 1;" +
                 "-fx-background-radius: 8;" +
                 "-fx-border-radius: 8;" +
-                "-fx-padding: 14;"
+                "-fx-padding: 18;"
         );
 
         Label whyHeader = new Label("REAL WORLD USES");
-        whyHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+        whyHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
 
         String[] uses = {
             "\uD83D\uDCC8 Predicting stock trends",
@@ -322,7 +322,7 @@ public class LeastSquaresView extends BorderPane {
         whyCard.getChildren().add(whyHeader);
         for (String use : uses) {
             Label useLabel = new Label(use);
-            useLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0;");
+            useLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #b0b0d0;");
             whyCard.getChildren().add(useLabel);
         }
 
@@ -347,9 +347,9 @@ public class LeastSquaresView extends BorderPane {
                 "-fx-background-radius: 12px;" +
                 "-fx-border-width: 2px;"
         );
-        scroll.setMinSize(360, HEIGHT);
-        scroll.setPrefSize(360, HEIGHT);
-        scroll.setMaxSize(360, HEIGHT);
+        scroll.setMinSize(420, HEIGHT);
+        scroll.setPrefSize(420, HEIGHT);
+        scroll.setMaxSize(420, HEIGHT);
 
         VBox wrapper = new VBox(scroll);
         return wrapper;
