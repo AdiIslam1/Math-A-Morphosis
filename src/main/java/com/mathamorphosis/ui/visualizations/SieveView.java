@@ -7,7 +7,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -70,7 +69,7 @@ public class SieveView extends BorderPane {
 
         // Header
         Label headerTitle = new Label("Sieve of Eratosthenes");
-        headerTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;");
+        headerTitle.setStyle("-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;");
         
         canvas = new Canvas(CANVAS_SIZE, CANVAS_SIZE);
         gc = canvas.getGraphicsContext2D();
@@ -108,7 +107,7 @@ public class SieveView extends BorderPane {
         centerBox.getChildren().addAll(headerTitle, canvas, controlBox);
         this.setCenter(centerBox);
 
-        // Right Info & Explanation Side Panel
+        // Right Info & Explanation Side Panel (Expanded for intelligent space usage)
         VBox rightPanel = buildExplanationPanel();
         this.setRight(rightPanel);
 
@@ -118,74 +117,87 @@ public class SieveView extends BorderPane {
     }
 
     private VBox buildExplanationPanel() {
-        VBox panel = new VBox(16);
-        panel.setPrefWidth(320);
-        panel.setPadding(new Insets(10, 16, 20, 20));
+        VBox panel = new VBox(20);
+        panel.setPrefWidth(420);
+        panel.setPadding(new Insets(16, 24, 24, 24));
         panel.setStyle(
             "-fx-background-color: #14142a; " +
             "-fx-border-color: #32325a; -fx-border-width: 0 0 0 1;"
         );
 
-        Label panelHeader = new Label("📌 INSTRUCTIONS & CONCEPT");
-        panelHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6868a0; -fx-letter-spacing: 1px;");
+        Label panelHeader = new Label("📌 INSTRUCTIONS & EXPLANATION");
+        panelHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0; -fx-letter-spacing: 1.2px;");
 
-        // Live Step Tracker Card
+        // Live Step Tracker Card (Expands to emphasize active step)
         statusBadgeLabel = new Label("READY");
         statusBadgeLabel.setStyle(
             "-fx-background-color: #22224a; -fx-text-fill: #5ba8e0; " +
-            "-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;"
+            "-fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;"
         );
 
         stepTitleLabel = new Label("Initialization");
-        stepTitleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5ba8e0;");
+        stepTitleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #5ba8e0;");
 
         stepDescLabel = new Label("Press Start to begin the algorithm. Watch how prime numbers are discovered and composite numbers are sieved out.");
-        stepDescLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #b0b0d0; -fx-wrap-text: true;");
+        stepDescLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true; -fx-line-spacing: 3px;");
 
-        VBox stepCard = new VBox(8, statusBadgeLabel, stepTitleLabel, stepDescLabel);
-        stepCard.setPadding(new Insets(14));
+        VBox stepCard = new VBox(10, statusBadgeLabel, stepTitleLabel, stepDescLabel);
+        stepCard.setPadding(new Insets(18));
         stepCard.setStyle(
             "-fx-background-color: #1c1c38; -fx-border-color: #5ba8e0; " +
-            "-fx-border-width: 0 0 0 3; -fx-border-radius: 0 6 6 0; -fx-background-radius: 6;"
+            "-fx-border-width: 0 0 0 4; -fx-border-radius: 0 8 8 0; -fx-background-radius: 8;"
         );
 
-        // Stats Card
-        Label statsHeader = new Label("📊 LIVE STATS");
-        statsHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+        // Stats Card - Spacious grid layout for stats
+        Label statsHeader = new Label("📊 LIVE ALGORITHM METRICS");
+        statsHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
 
-        primesCountLabel = new Label("Primes Found: 0");
-        primesCountLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #4cbf95;");
+        primesCountLabel = new Label("0");
+        primesCountLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4cbf95;");
+        Label primesSub = new Label("Primes Discovered");
+        primesSub.setStyle("-fx-font-size: 12px; -fx-text-fill: #8080b0;");
+        VBox primeStatBox = new VBox(2, primesCountLabel, primesSub);
+        primeStatBox.setAlignment(Pos.CENTER);
+        primeStatBox.setPadding(new Insets(12));
+        primeStatBox.setStyle("-fx-background-color: #141428; -fx-background-radius: 6;");
+        HBox.setHgrow(primeStatBox, Priority.ALWAYS);
 
-        eliminatedCountLabel = new Label("Eliminated: 0 / 100");
-        eliminatedCountLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #d46b6b;");
+        eliminatedCountLabel = new Label("0");
+        eliminatedCountLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #d46b6b;");
+        Label eliminatedSub = new Label("Numbers Sieved");
+        eliminatedSub.setStyle("-fx-font-size: 12px; -fx-text-fill: #8080b0;");
+        VBox elimStatBox = new VBox(2, eliminatedCountLabel, eliminatedSub);
+        elimStatBox.setAlignment(Pos.CENTER);
+        elimStatBox.setPadding(new Insets(12));
+        elimStatBox.setStyle("-fx-background-color: #141428; -fx-background-radius: 6;");
+        HBox.setHgrow(elimStatBox, Priority.ALWAYS);
 
-        VBox statsCard = new VBox(6, statsHeader, primesCountLabel, eliminatedCountLabel);
-        statsCard.setPadding(new Insets(12, 14, 12, 14));
+        HBox statsGrid = new HBox(12, primeStatBox, elimStatBox);
+        VBox statsCard = new VBox(10, statsHeader, statsGrid);
+        statsCard.setPadding(new Insets(16));
         statsCard.setStyle(
             "-fx-background-color: #1c1c38; -fx-border-color: #32325a; " +
-            "-fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;"
+            "-fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;"
         );
 
-        // How it works / Algorithm Rules Card
-        Label rulesHeader = new Label("💡 HOW THE SIEVE WORKS");
-        rulesHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
+        // Concept & Rules Card
+        Label rulesHeader = new Label("💡 MATHEMATICAL CONCEPT");
+        rulesHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
 
-        Label rule1 = new Label("1. Start with grid of 1–100.");
-        rule1.setStyle("-fx-font-size: 12px; -fx-text-fill: #b0b0d0;");
-        Label rule2 = new Label("2. 1 is neither prime nor composite.");
-        rule2.setStyle("-fx-font-size: 12px; -fx-text-fill: #b0b0d0;");
-        Label rule3 = new Label("3. Pick smallest un-eliminated (e.g. 2). It's PRIME!");
-        rule3.setStyle("-fx-font-size: 12px; -fx-text-fill: #4cbf95; -fx-font-weight: bold;");
-        Label rule4 = new Label("4. Eliminate all multiples (4, 6, 8, 10...).");
-        rule4.setStyle("-fx-font-size: 12px; -fx-text-fill: #b0b0d0;");
-        Label rule5 = new Label("5. Repeat for 3, 5, 7. Stop at √100 = 10!");
-        rule5.setStyle("-fx-font-size: 12px; -fx-text-fill: #d4a84b;");
+        Label rule1 = new Label("• A Prime Number has exactly 2 factors: 1 and itself.");
+        rule1.setStyle("-fx-font-size: 14px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;");
+        Label rule2 = new Label("• 1 is excluded (it has only 1 factor).");
+        rule2.setStyle("-fx-font-size: 14px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;");
+        Label rule3 = new Label("• We only need to check prime multiples up to √100 = 10.");
+        rule3.setStyle("-fx-font-size: 14px; -fx-text-fill: #d4a84b; -fx-font-weight: bold; -fx-wrap-text: true;");
+        Label rule4 = new Label("• Every remaining un-eliminated number is guaranteed prime!");
+        rule4.setStyle("-fx-font-size: 14px; -fx-text-fill: #4cbf95; -fx-font-weight: bold; -fx-wrap-text: true;");
 
-        VBox rulesCard = new VBox(6, rulesHeader, rule1, rule2, rule3, rule4, rule5);
-        rulesCard.setPadding(new Insets(12, 14, 12, 14));
+        VBox rulesCard = new VBox(10, rulesHeader, rule1, rule2, rule3, rule4);
+        rulesCard.setPadding(new Insets(16));
         rulesCard.setStyle(
             "-fx-background-color: #1c1c38; -fx-border-color: #32325a; " +
-            "-fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;"
+            "-fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;"
         );
 
         panel.getChildren().addAll(panelHeader, stepCard, statsCard, rulesCard);
@@ -203,48 +215,48 @@ public class SieveView extends BorderPane {
             }
         }
 
-        primesCountLabel.setText("Primes Found: " + primeCount);
-        eliminatedCountLabel.setText("Eliminated: " + eliminatedCount + " / 100");
+        primesCountLabel.setText(String.valueOf(primeCount));
+        eliminatedCountLabel.setText(eliminatedCount + " / 100");
 
         switch (phase) {
             case INIT:
                 statusBadgeLabel.setText("READY");
-                statusBadgeLabel.setStyle("-fx-background-color: #22224a; -fx-text-fill: #5ba8e0; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                statusBadgeLabel.setStyle("-fx-background-color: #22224a; -fx-text-fill: #5ba8e0; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Grid Loaded (1 to 100)");
-                stepDescLabel.setText("Press 'Start' to begin the sieve process. We will systematically find primes and eliminate composites.");
+                stepDescLabel.setText("Press 'Start' to begin the algorithm. We will systematically find primes and eliminate composites.");
                 break;
 
             case ELIMINATE_ONE:
                 statusBadgeLabel.setText("STEP 1");
-                statusBadgeLabel.setStyle("-fx-background-color: #4a222a; -fx-text-fill: #d46b6b; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                statusBadgeLabel.setStyle("-fx-background-color: #4a222a; -fx-text-fill: #d46b6b; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Eliminating 1");
                 stepDescLabel.setText("Number 1 is excluded because prime numbers must have exactly two distinct positive divisors: 1 and itself.");
                 break;
 
             case FIND_PRIME:
                 statusBadgeLabel.setText("SCANNING");
-                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Finding Next Prime...");
                 stepDescLabel.setText("Scanning the grid for the smallest remaining number that has not been eliminated.");
                 break;
 
             case PULSE_PRIME:
                 statusBadgeLabel.setText("PRIME FOUND");
-                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Prime Discovered: " + currentPrime);
                 stepDescLabel.setText(currentPrime + " is prime! Next, we will jump through the grid to eliminate all multiples of " + currentPrime + ".");
                 break;
 
             case SWEEP_MULTIPLE:
-                statusBadgeLabel.setText("SWEEPING");
-                statusBadgeLabel.setStyle("-fx-background-color: #4a3c22; -fx-text-fill: #d4a84b; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                statusBadgeLabel.setText("SWEEPING MULTIPLES");
+                statusBadgeLabel.setStyle("-fx-background-color: #4a3c22; -fx-text-fill: #d4a84b; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Eliminating Multiples of " + currentPrime);
                 stepDescLabel.setText("Bouncing to " + currentMultiple + " (" + currentPrime + " × " + (currentMultiple / currentPrime) + "). Since it's divisible by " + currentPrime + ", it is marked composite.");
                 break;
 
             case FLARE_PRIMES:
                 statusBadgeLabel.setText("COMPLETE");
-                statusBadgeLabel.setStyle("-fx-background-color: #38224a; -fx-text-fill: #9b72d4; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                statusBadgeLabel.setStyle("-fx-background-color: #38224a; -fx-text-fill: #9b72d4; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Sieve Finished! (up to √100 = 10)");
                 stepDescLabel.setText("We've checked all prime factors up to √100 = 10. Every remaining unmarked number in the grid is guaranteed to be PRIME!");
                 break;
@@ -252,7 +264,7 @@ public class SieveView extends BorderPane {
             case CONVERGE_PRIMES:
             case DONE:
                 statusBadgeLabel.setText("ALL PRIMES");
-                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4;");
+                statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("25 Primes Discovered");
                 stepDescLabel.setText("The 25 prime numbers between 1 and 100 are:\n2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97.");
                 break;
