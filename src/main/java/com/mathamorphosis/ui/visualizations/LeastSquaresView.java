@@ -78,7 +78,9 @@ public class LeastSquaresView extends BorderPane {
                 "-fx-border-radius: 12px;" +
                 "-fx-border-width: 2px;"
         );
+        gridPane.setMinSize(WIDTH, HEIGHT);
         gridPane.setPrefSize(WIDTH, HEIGHT);
+        gridPane.setMaxSize(WIDTH, HEIGHT);
         drawAxesAndGrid();
         gridPane.setOnMouseClicked(this::handleGridClick);
 
@@ -88,6 +90,12 @@ public class LeastSquaresView extends BorderPane {
 
         instructionLabel = new Label("Click anywhere on the grid to add data points. Drag them to adjust.");
         instructionLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #6868a0;");
+
+        // ── Live result labels (stored for updates) ───────────────────────
+        livePointCount     = makeLiveLabel("Data Points: 0",    "#f0f0f8", 15, true);
+        liveSlopeLabel     = makeLiveLabel("m (slope) = \u2014",   "#4cbf95", 15, true);
+        liveInterceptLabel = makeLiveLabel("b (intercept) = \u2014", "#5ba8e0", 15, true);
+        liveEquationLabel  = makeLiveLabel("ŷ = \u2014",           "#d4a84b", 14, false);
 
         // ── Controls ──────────────────────────────────────────────────────
         userGuessToggle = new ToggleButton("1. Draw Your Guess Line");
@@ -137,31 +145,25 @@ public class LeastSquaresView extends BorderPane {
 
         HBox controls = new HBox(20);
         controls.setAlignment(Pos.CENTER);
-        controls.setPadding(new Insets(16, 0, 8, 0));
+        controls.setPadding(new Insets(12, 0, 8, 0));
         controls.getChildren().addAll(userGuessToggle, calcBestFitBtn, showErrorsToggle);
+
+        // ── Right explanation panel (Statistics) ─────────────────────────
+        VBox statsPanel = buildExplanationPanel();
+
+        // ── Side-by-side content (Graph + Statistics) ─────────────────────
+        HBox mainContent = new HBox(24);
+        mainContent.setAlignment(Pos.CENTER);
+        mainContent.getChildren().addAll(gridPane, statsPanel);
 
         // ── Center VBox ───────────────────────────────────────────────────
         VBox centerBox = new VBox(12);
         centerBox.setAlignment(Pos.CENTER);
-        centerBox.setPadding(new Insets(20, 30, 20, 20));
+        centerBox.setPadding(new Insets(16, 24, 16, 24));
         centerBox.setStyle("-fx-background-color: #0c0c1e;");
-        VBox.setVgrow(gridPane, Priority.ALWAYS);
-        centerBox.getChildren().addAll(title, gridPane, controls);
-
-        // ── Live result labels (stored for updates) ───────────────────────
-        livePointCount    = makeLiveLabel("Data Points: 0",    "#f0f0f8", 15, true);
-        liveSlopeLabel    = makeLiveLabel("m (slope) = \u2014",   "#4cbf95", 15, true);
-        liveInterceptLabel = makeLiveLabel("b (intercept) = \u2014", "#5ba8e0", 15, true);
-        liveEquationLabel = makeLiveLabel("ŷ = \u2014",           "#d4a84b", 14, false);
-
-        // ── Left explanation panel ────────────────────────────────────────
-        VBox leftPanel = buildExplanationPanel();
-        leftPanel.setPrefWidth(360);
-        leftPanel.setMinWidth(360);
-        leftPanel.setMaxWidth(360);
+        centerBox.getChildren().addAll(title, instructionLabel, mainContent, controls);
 
         // ── Wire up ───────────────────────────────────────────────────────
-        this.setLeft(leftPanel);
         this.setCenter(centerBox);
     }
 
@@ -171,12 +173,8 @@ public class LeastSquaresView extends BorderPane {
 
     private VBox buildExplanationPanel() {
         VBox panel = new VBox(14);
-        panel.setPadding(new Insets(24, 20, 24, 20));
-        panel.setStyle(
-                "-fx-background-color: #14142a;" +
-                "-fx-border-color: #32325a;" +
-                "-fx-border-width: 0 1 0 0;"
-        );
+        panel.setPadding(new Insets(16));
+        panel.setStyle("-fx-background-color: #14142a;");
 
         // Section label
         Label sectionLabel = new Label("STATISTICS");
@@ -341,15 +339,19 @@ public class LeastSquaresView extends BorderPane {
         ScrollPane scroll = new ScrollPane(panel);
         scroll.setFitToWidth(true);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setStyle("-fx-background: #14142a; -fx-background-color: #14142a; -fx-border-width: 0;");
-
-        VBox wrapper = new VBox(scroll);
-        VBox.setVgrow(scroll, Priority.ALWAYS);
-        wrapper.setStyle(
+        scroll.setStyle(
+                "-fx-background: #14142a;" +
                 "-fx-background-color: #14142a;" +
                 "-fx-border-color: #32325a;" +
-                "-fx-border-width: 0 1 0 0;"
+                "-fx-border-radius: 12px;" +
+                "-fx-background-radius: 12px;" +
+                "-fx-border-width: 2px;"
         );
+        scroll.setMinSize(360, HEIGHT);
+        scroll.setPrefSize(360, HEIGHT);
+        scroll.setMaxSize(360, HEIGHT);
+
+        VBox wrapper = new VBox(scroll);
         return wrapper;
     }
 
