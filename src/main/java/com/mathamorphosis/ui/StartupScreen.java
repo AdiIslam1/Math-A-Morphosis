@@ -73,11 +73,11 @@ public class StartupScreen extends StackPane {
 
         Label title = new Label("Math-A-Morphosis");
         title.getStyleClass().add("header-text");
-        title.setStyle("-fx-font-size: 72px;");
+        title.setStyle("-fx-font-size: 56px;");
 
         Label prompt = new Label("Click to start visualizing");
         prompt.getStyleClass().add("subheader-text");
-        prompt.setStyle("-fx-font-size: 24px; -fx-text-fill: #5ba8e0;");
+        prompt.setStyle("-fx-font-size: 22px; -fx-text-fill: #5ba8e0;");
 
         // Pulse Animation for the prompt
         Timeline pulse = new Timeline(

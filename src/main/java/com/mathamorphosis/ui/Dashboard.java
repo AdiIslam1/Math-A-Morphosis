@@ -21,8 +21,8 @@ import java.util.function.Consumer;
 
 public class Dashboard extends StackPane {
 
-    private static final double CARD_W = 355;
-    private static final double CARD_H = 175;
+    private static final double CARD_W = 340;
+    private static final double CARD_H = 150;
 
     public Dashboard(Consumer<String> onModuleSelected) {
 
@@ -43,22 +43,22 @@ public class Dashboard extends StackPane {
         bgTimer.start();
 
         // ── Content layer ─────────────────────────────────────────────────────
-        VBox content = new VBox(40);
+        VBox content = new VBox(24);
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(50));
+        content.setPadding(new Insets(24, 30, 30, 30));
 
-        VBox header = new VBox(8);
+        VBox header = new VBox(6);
         header.setAlignment(Pos.CENTER);
         Label title = new Label("Math-A-Morphosis");
-        title.getStyleClass().add("header-text");
+        title.setStyle("-fx-font-size: 38px; -fx-font-weight: bold; -fx-text-fill: #eaeaf5;");
         Label subtitle = new Label("A Visual Mathematics Learning Studio");
-        subtitle.getStyleClass().add("subheader-text");
+        subtitle.setStyle("-fx-font-size: 15px; -fx-text-fill: #6868a0;");
         header.getChildren().addAll(title, subtitle);
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
-        grid.setHgap(28);
-        grid.setVgap(28);
+        grid.setHgap(22);
+        grid.setVgap(18);
 
         grid.add(makeCard("Number Theory",       "Sieve of Eratosthenes",               "#9b72d4", "NUMBER_THEORY",  "number_theory",  onModuleSelected), 0, 0);
         grid.add(makeCard("Calculus",            "Riemann Sum Convergence",              "#5ba8e0", "CALCULUS",        "calculus",       onModuleSelected), 1, 0);
@@ -71,7 +71,20 @@ public class Dashboard extends StackPane {
 
         content.getChildren().addAll(header, grid);
 
-        this.getChildren().addAll(bgCanvas, content);
+        // ── ScrollPane wrapper to prevent vertical overflow on small screens ─
+        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setStyle(
+                "-fx-background: transparent;" +
+                "-fx-background-color: transparent;" +
+                "-fx-viewport-background-color: transparent;" +
+                "-fx-border-width: 0;"
+        );
+
+        this.getChildren().addAll(bgCanvas, scrollPane);
         this.setStyle("-fx-background-color: #0c0c1e;");
 
         // Stop bg timer when removed from scene
@@ -130,15 +143,15 @@ public class Dashboard extends StackPane {
         // Label content
         Label titleLbl = new Label(titleText);
         titleLbl.setStyle(
-            "-fx-font-size:21px; -fx-font-weight:bold; -fx-text-fill:" + accentHex + ";"
+            "-fx-font-size:19px; -fx-font-weight:bold; -fx-text-fill:" + accentHex + ";"
         );
         Label descLbl = new Label(descText);
         descLbl.setStyle(
             "-fx-font-size:13px; -fx-text-fill:#8888aa; -fx-wrap-text:true;"
         );
-        VBox text = new VBox(10, titleLbl, descLbl);
+        VBox text = new VBox(6, titleLbl, descLbl);
         text.setAlignment(Pos.CENTER_LEFT);
-        text.setPadding(new Insets(28));
+        text.setPadding(new Insets(20));
         text.setMaxWidth(CARD_W);
         text.setPickOnBounds(false);
 
