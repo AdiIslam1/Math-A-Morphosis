@@ -476,15 +476,55 @@ public class RiemannView extends BorderPane {
         try {
             String processed = insertImplicitMultiplication(newFunc);
             expression = new ExpressionBuilder(processed).variables("x").build();
-            expression.setVariable("x", 0).evaluate();
+            // Removed expression.setVariable("x", 0).evaluate(); so functions undefined at 0 (like 1/x) are still accepted.
             functionStr = newFunc;
             draw(getMappedN());
         } catch (Exception ignored) {}
     }
 
     private double f(double x) {
-        if (expression == null) return 0;
-        return expression.setVariable("x", x).evaluate();
+        if (expression == null) return Double.NaN;
+        try {
+            return expression.setVariable("x", x).evaluate();
+        } catch (ArithmeticException e) {
+            return Double.POSITIVE_INFINITY;
+        } catch (Exception e) {
+            return Double.NaN;
+        }
+    }
+
+    private enum FunctionState { VALID, DIVERGENT, ERROR }
+
+    private FunctionState checkFunctionState(double a, double b) {
+        if (expression == null) return FunctionState.ERROR;
+        if (b < a) {
+            double temp = a;
+            a = b;
+            b = temp;
+        }
+        
+        int N = 1000;
+        double dx = (b - a) / N;
+        if (dx == 0) dx = 1e-9;
+        
+        boolean hasInfinity = false;
+        
+        for (int i = 0; i <= N; i++) {
+            double x = a + i * dx;
+            double y = f(x);
+            if (Double.isNaN(y)) return FunctionState.ERROR;
+            if (Double.isInfinite(y)) hasInfinity = true;
+        }
+        
+        for (int i = 0; i < N; i++) {
+            double x = a + i * dx + dx / 2.0;
+            double y = f(x);
+            if (Double.isNaN(y)) return FunctionState.ERROR;
+            if (Double.isInfinite(y)) hasInfinity = true;
+        }
+        
+        if (hasInfinity) return FunctionState.DIVERGENT;
+        return FunctionState.VALID;
     }
 
     private double calculateActualArea(double a, double b) {
@@ -503,6 +543,32 @@ public class RiemannView extends BorderPane {
         double W = canvas.getWidth();
         double H = canvas.getHeight();
         if (W <= 0 || H <= 0) return;
+
+        FunctionState state = checkFunctionState(aValue, bValue);
+
+        if (state == FunctionState.ERROR) {
+            nSlider.setDisable(true);
+            estValueLabel.setText("Error");
+            actValueLabel.setText("Undefined");
+            errorValueLabel.setText("N/A");
+            gc.setFill(Color.web(BG_DEEP));
+            gc.fillRect(0, 0, W, H);
+            return;
+        } else if (state == FunctionState.DIVERGENT) {
+            nSlider.setDisable(true);
+            estValueLabel.setText("Divergent");
+            actValueLabel.setText("∞");
+            errorValueLabel.setText("N/A");
+            // We can continue to draw but the math might look weird, or we can just return.
+            // Returning early for divergent is safe.
+            gc.setFill(Color.web(BG_DEEP));
+            gc.fillRect(0, 0, W, H);
+            return;
+        } else {
+            if (!modeToggle.isSelected()) {
+                nSlider.setDisable(false);
+            }
+        }
 
         final double PAD_L = 60, PAD_R = 30, PAD_T = 30, PAD_B = 40;
         final double plotW = W - PAD_L - PAD_R;
@@ -676,7 +742,7 @@ public class RiemannView extends BorderPane {
 
         double error = Math.abs(actualArea - estimatedArea);
         estValueLabel.setText(String.format("%.4f", estimatedArea));
-        actValueLabel.setText(String.format("%.4f", actualArea));
+        actValueLabel.setText(String.format("≈ %.4f (Numerical)", actualArea));
         errorValueLabel.setText(String.format("%.4f", error));
 
         // Fade estimated area colour from terracotta → sage as n grows

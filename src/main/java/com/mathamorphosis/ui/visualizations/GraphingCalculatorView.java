@@ -15,7 +15,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.LineTo;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -23,6 +25,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GraphingCalculatorView extends BorderPane {
@@ -62,15 +65,16 @@ public class GraphingCalculatorView extends BorderPane {
     
     private class FunctionRow {
         TextField input;
-        Polyline line;
+        Path line;
         Color color;
         
         FunctionRow(String expr, Color c) {
             this.color = c;
             
-            line = new Polyline();
+            line = new Path();
             line.setStroke(color);
             line.setStrokeWidth(3);
+            line.setFill(Color.TRANSPARENT);
             line.setEffect(new DropShadow(10, color));
             
             input = new TextField(expr);
@@ -346,16 +350,16 @@ public class GraphingCalculatorView extends BorderPane {
     
     private void plotFunctions() {
         if (WIDTH <= 0 || HEIGHT <= 0) return;
-        
+
         for (FunctionRow row : functionRows) {
-            row.line.getPoints().clear();
+            row.line.getElements().clear();
         }
-        
+
         drawingPane.getChildren().removeAll(intersectionPoints);
         drawingPane.getChildren().removeAll(intersectionLabels);
         intersectionPoints.clear();
         intersectionLabels.clear();
-        
+
         List<Expression> expressions = new ArrayList<>();
         for (FunctionRow row : functionRows) {
             String expr = row.input.getText().trim();
@@ -367,70 +371,108 @@ public class GraphingCalculatorView extends BorderPane {
             } catch (Exception ignored) {}
             expressions.add(exp);
         }
-        
+
         double mathMinX = -offsetX / scale;
         double mathMaxX = (WIDTH - offsetX) / scale;
-        double step = 2.0 / scale; 
-        
+        double step = 2.0 / scale;
+
+        int n = expressions.size();
+        // penDown[i]: whether the last point for function i was valid (pen is on paper)
+        boolean[] penDown = new boolean[n];
+        // prevMathY[i]: last valid math-y for function i (NaN if no valid point yet)
+        double[] prevMathY = new double[n];
+        Arrays.fill(prevMathY, Double.NaN);
+
+        // For intersection detection we still track per-step y values
         List<Double> prevYs = new ArrayList<>();
-        for (int i = 0; i < expressions.size(); i++) prevYs.add(null);
-        
+        for (int i = 0; i < n; i++) prevYs.add(null);
+
         for (double mx = mathMinX; mx <= mathMaxX; mx += step) {
             double sx = offsetX + mx * scale;
             List<Double> currentYs = new ArrayList<>();
-            
-            for (int i = 0; i < expressions.size(); i++) {
+
+            for (int i = 0; i < n; i++) {
                 Expression exp = expressions.get(i);
                 Double my = null;
+
                 if (exp != null) {
                     try {
                         exp.setVariable("x", mx);
-                        my = exp.evaluate();
-                        double sy = offsetY - my * scale;
-                        
-                        Double py = prevYs.get(i);
-                        if (py == null || Math.abs(my - py) * scale < HEIGHT * 2) {
-                            functionRows.get(i).line.getPoints().addAll(sx, sy);
+                        double val = exp.evaluate();
+
+                        if (!Double.isNaN(val) && !Double.isInfinite(val)) {
+                            // Asymptote / discontinuity detection:
+                            // If the jump from the previous point is larger than ~1.5x the
+                            // viewport height in screen pixels, lift the pen rather than
+                            // drawing a near-vertical spike across the asymptote.
+                            boolean bigJump = !Double.isNaN(prevMathY[i])
+                                    && Math.abs(val - prevMathY[i]) * scale > HEIGHT * 1.5;
+
+                            if (bigJump) {
+                                penDown[i] = false; // lift pen at the jump
+                            }
+
+                            double sy = offsetY - val * scale;
+                            if (!penDown[i]) {
+                                // Start a new sub-path segment
+                                functionRows.get(i).line.getElements().add(new MoveTo(sx, sy));
+                                penDown[i] = true;
+                            } else {
+                                functionRows.get(i).line.getElements().add(new LineTo(sx, sy));
+                            }
+                            prevMathY[i] = val;
+                            my = val;
+                        } else {
+                            // NaN or Infinity — lift pen
+                            penDown[i] = false;
+                            prevMathY[i] = Double.NaN;
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                        penDown[i] = false;
+                        prevMathY[i] = Double.NaN;
+                    }
+                } else {
+                    penDown[i] = false;
+                    prevMathY[i] = Double.NaN;
                 }
                 currentYs.add(my);
             }
-            
+
             // Check intersections for all pairs
-            for (int i = 0; i < expressions.size(); i++) {
-                for (int j = i + 1; j < expressions.size(); j++) {
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j < n; j++) {
                     Double my1 = currentYs.get(i);
                     Double my2 = currentYs.get(j);
                     Double py1 = prevYs.get(i);
                     Double py2 = prevYs.get(j);
-                    
+
                     if (my1 != null && my2 != null && py1 != null && py2 != null) {
                         double diffNow = my1 - my2;
                         double diffPrev = py1 - py2;
-                        
+
                         if (diffNow * diffPrev <= 0 && Math.abs(diffNow) < 50 && Math.abs(diffPrev) < 50) {
                             double t = Math.abs(diffPrev) / (Math.abs(diffPrev) + Math.abs(diffNow));
                             if (Double.isNaN(t)) t = 0.5;
                             double intersectX = (mx - step) + t * step;
-                            
+
                             Expression e1 = expressions.get(i);
                             e1.setVariable("x", intersectX);
                             double intersectY = 0;
                             try {
                                 intersectY = e1.evaluate();
                             } catch (Exception ignored) {}
-                            
+
                             double screenIntersectX = offsetX + intersectX * scale;
                             double screenIntersectY = offsetY - intersectY * scale;
-                            
-                            if (screenIntersectX >= -50 && screenIntersectX <= WIDTH + 50 && screenIntersectY >= -50 && screenIntersectY <= HEIGHT + 50) {
+
+                            if (screenIntersectX >= -50 && screenIntersectX <= WIDTH + 50
+                                    && screenIntersectY >= -50 && screenIntersectY <= HEIGHT + 50) {
                                 Circle dot = new Circle(screenIntersectX, screenIntersectY, 6, Color.web("#ffffff"));
                                 dot.setStroke(Color.web("#ef4444"));
                                 dot.setStrokeWidth(2);
                                 dot.setEffect(new DropShadow(10, Color.web("#ef4444")));
                                 intersectionPoints.add(dot);
-                                
+
                                 Text coords = new Text(String.format("(%.2f, %.2f)", intersectX, intersectY));
                                 coords.setFill(Color.web("#ffffff"));
                                 coords.setFont(Font.font("Segoe UI", 12));
@@ -443,10 +485,10 @@ public class GraphingCalculatorView extends BorderPane {
                     }
                 }
             }
-            
+
             prevYs = currentYs;
         }
-        
+
         drawingPane.getChildren().addAll(intersectionPoints);
         drawingPane.getChildren().addAll(intersectionLabels);
     }
