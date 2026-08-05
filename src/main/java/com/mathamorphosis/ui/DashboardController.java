@@ -1,13 +1,14 @@
 package com.mathamorphosis.ui;
 
 import javafx.animation.AnimationTimer;
+import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -16,20 +17,28 @@ import javafx.scene.text.FontWeight;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 
-public class Dashboard extends StackPane {
+public class DashboardController {
+
+    @FXML
+    private StackPane rootPane;
 
     private static final double CARD_W = 340;
     private static final double CARD_H = 150;
 
-    public Dashboard(Consumer<String> onModuleSelected) {
+    private Consumer<String> onModuleSelect;
 
-        // ── Animated grid background for the whole dashboard ──────────────────
+    public void setOnModuleSelect(Consumer<String> onModuleSelect) {
+        this.onModuleSelect = onModuleSelect;
+    }
+
+    @FXML
+    public void initialize() {
+        // ── Animated grid background ─────────────────────────────────────────
         Canvas bgCanvas = new Canvas();
-        bgCanvas.widthProperty().bind(this.widthProperty());
-        bgCanvas.heightProperty().bind(this.heightProperty());
+        bgCanvas.widthProperty().bind(rootPane.widthProperty());
+        bgCanvas.heightProperty().bind(rootPane.heightProperty());
         GraphicsContext bgGc = bgCanvas.getGraphicsContext2D();
 
         final double[] bgTime = {0};
@@ -42,7 +51,7 @@ public class Dashboard extends StackPane {
         };
         bgTimer.start();
 
-        // ── Content layer ─────────────────────────────────────────────────────
+        // ── Content layer ────────────────────────────────────────────────────
         VBox content = new VBox(24);
         content.setAlignment(Pos.CENTER);
         content.setPadding(new Insets(24, 30, 30, 30));
@@ -60,23 +69,23 @@ public class Dashboard extends StackPane {
         grid.setHgap(22);
         grid.setVgap(18);
 
-        grid.add(makeCard("Number Theory",       "Sieve of Eratosthenes",               "#9b72d4", "NUMBER_THEORY",  "number_theory",  onModuleSelected), 0, 0);
-        grid.add(makeCard("Calculus",            "Riemann Sum Convergence",              "#5ba8e0", "CALCULUS",        "calculus",       onModuleSelected), 1, 0);
-        grid.add(makeCard("Linear Algebra",      "Interactive Vector Projections",       "#4ab8c4", "LINEAR_ALGEBRA",  "linear_algebra", onModuleSelected), 0, 1);
-        grid.add(makeCard("Statistics",          "Least Squares Regression Sandbox",     "#d4a84b", "LEAST_SQUARES",   "statistics",     onModuleSelected), 1, 1);
-        grid.add(makeCard("Trigonometry",        "Unit Circle Unroller",                 "#4cbf95", "UNIT_CIRCLE",     "trigonometry",   onModuleSelected), 0, 2);
-        grid.add(makeCard("Algebra",             "2D Graphing Calculator",               "#d46b6b", "GRAPHING_CALC",   "algebra",        onModuleSelected), 1, 2);
-        grid.add(makeCard("Signal Processing",   "Fourier Series Epicycles",             "#9b72d4", "FOURIER_SERIES",  "fourier",        onModuleSelected), 0, 3);
-        grid.add(makeCard("Mathematical Marvels","The Chaos Game: Order from Randomness","#d4a84b", "CHAOS_GAME",      "chaos",          onModuleSelected), 1, 3);
+        grid.add(makeCard("Number Theory",       "Sieve of Eratosthenes",                "#9b72d4", "NUMBER_THEORY",  "number_theory"), 0, 0);
+        grid.add(makeCard("Calculus",            "Riemann Sum Convergence",              "#5ba8e0", "CALCULUS",        "calculus"),      1, 0);
+        grid.add(makeCard("Linear Algebra",      "Interactive Vector Projections",       "#4ab8c4", "LINEAR_ALGEBRA",  "linear_algebra"),0, 1);
+        grid.add(makeCard("Statistics",          "Least Squares Regression Sandbox",     "#d4a84b", "LEAST_SQUARES",   "statistics"),    1, 1);
+        grid.add(makeCard("Trigonometry",        "Unit Circle Unroller",                 "#4cbf95", "UNIT_CIRCLE",     "trigonometry"),  0, 2);
+        grid.add(makeCard("Algebra",             "2D Graphing Calculator",               "#d46b6b", "GRAPHING_CALC",   "algebra"),       1, 2);
+        grid.add(makeCard("Signal Processing",   "Fourier Series Epicycles",             "#9b72d4", "FOURIER_SERIES",  "fourier"),       0, 3);
+        grid.add(makeCard("Mathematical Marvels","The Chaos Game: Order from Randomness","#d4a84b", "CHAOS_GAME",      "chaos"),         1, 3);
 
         content.getChildren().addAll(header, grid);
 
-        // ── ScrollPane wrapper to prevent vertical overflow on small screens ─
-        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(content);
+        // ── ScrollPane wrapper ───────────────────────────────────────────────
+        ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
-        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setStyle(
                 "-fx-background: transparent;" +
                 "-fx-background-color: transparent;" +
@@ -84,11 +93,11 @@ public class Dashboard extends StackPane {
                 "-fx-border-width: 0;"
         );
 
-        this.getChildren().addAll(bgCanvas, scrollPane);
-        this.setStyle("-fx-background-color: #0c0c1e;");
+        rootPane.getChildren().addAll(bgCanvas, scrollPane);
+        rootPane.setStyle("-fx-background-color: #0c0c1e;");
 
         // Stop bg timer when removed from scene
-        this.sceneProperty().addListener((obs, o, n) -> {
+        rootPane.sceneProperty().addListener((obs, o, n) -> {
             if (n == null) bgTimer.stop();
         });
     }
@@ -120,17 +129,14 @@ public class Dashboard extends StackPane {
     // ── Card factory ─────────────────────────────────────────────────────────
 
     private StackPane makeCard(String titleText, String descText,
-                               String accentHex, String moduleKey, String animType,
-                               Consumer<String> onModuleSelected) {
+                               String accentHex, String moduleKey, String animType) {
 
         Color accent = Color.web(accentHex);
 
-        // Animated canvas — same size as card, hidden when not hovered
         Canvas anim = new Canvas(CARD_W, CARD_H);
         anim.setOpacity(0);
         GraphicsContext gc = anim.getGraphicsContext2D();
 
-        // State object for each card's animation
         AnimState state = new AnimState();
 
         AnimationTimer timer = new AnimationTimer() {
@@ -140,7 +146,6 @@ public class Dashboard extends StackPane {
             }
         };
 
-        // Label content
         Label titleLbl = new Label(titleText);
         titleLbl.setStyle(
             "-fx-font-size:19px; -fx-font-weight:bold; -fx-text-fill:" + accentHex + ";"
@@ -155,7 +160,6 @@ public class Dashboard extends StackPane {
         text.setMaxWidth(CARD_W);
         text.setPickOnBounds(false);
 
-        // Card shell
         StackPane card = new StackPane(anim, text);
         card.setPrefSize(CARD_W, CARD_H);
         card.setMinSize(CARD_W, CARD_H);
@@ -171,7 +175,6 @@ public class Dashboard extends StackPane {
         );
         card.setAlignment(Pos.CENTER_LEFT);
 
-        // Hover: fade anim in/out
         card.setOnMouseEntered(e -> {
             state.reset();
             timer.start();
@@ -200,7 +203,9 @@ public class Dashboard extends StackPane {
             fadeCanvas(anim, 1, 0, 200);
         });
 
-        card.setOnMouseClicked(e -> onModuleSelected.accept(moduleKey));
+        card.setOnMouseClicked(e -> {
+            if (onModuleSelect != null) onModuleSelect.accept(moduleKey);
+        });
 
         return card;
     }
@@ -221,12 +226,12 @@ public class Dashboard extends StackPane {
         }
     }
 
-    // ── 1. Number Theory: prime numbers drifting across the background ────────
+    // ── 1. Number Theory ─────────────────────────────────────────────────────
     private void drawNumberTheory(GraphicsContext gc, Color accent, AnimState s) {
         if (s.primes == null) {
             s.primes = new ArrayList<>();
             int[] ps = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113};
-            Random rng = new Random(42);
+            java.util.Random rng = new java.util.Random(42);
             for (int p : ps) {
                 double[] d = { rng.nextDouble()*CARD_W, rng.nextDouble()*CARD_H,
                                (rng.nextDouble()-0.5)*0.4, (rng.nextDouble()-0.5)*0.4,
@@ -245,7 +250,6 @@ public class Dashboard extends StackPane {
             gc.setFont(Font.font("Monospace", FontWeight.BOLD, p[5]));
             gc.fillText(String.valueOf((int)p[4]), p[0], p[1]);
         }
-        // Sieve-style grid of dots that light up for primes
         double dotSpacing = 18;
         int col = 0, row = 0;
         double startX = CARD_W - 90, startY = 8;
@@ -267,17 +271,15 @@ public class Dashboard extends StackPane {
         return true;
     }
 
-    // ── 2. Calculus: animated Riemann rectangles converging to curve ──────────
+    // ── 2. Calculus ──────────────────────────────────────────────────────────
     private void drawCalculus(GraphicsContext gc, Color accent, AnimState s) {
         int n = Math.max(2, (int)(2 + 18 * ((Math.sin(s.t * 0.5) + 1) / 2.0)));
         double padL = 30, padR = 20, padT = 20, padB = 30;
         double pW = CARD_W - padL - padR, pH = CARD_H - padT - padB;
-        // Axis
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.2));
         gc.setLineWidth(1);
         gc.strokeLine(padL, padT + pH, padL + pW, padT + pH);
         gc.strokeLine(padL, padT, padL, padT + pH);
-        // Rectangles
         for (int i = 0; i < n; i++) {
             double xMid = (i + 0.5) / n;
             double y = 0.15 + 0.7 * Math.sin(xMid * Math.PI);
@@ -291,7 +293,6 @@ public class Dashboard extends StackPane {
             gc.setLineWidth(0.5);
             gc.strokeRect(rx, padT + pH - rh, rw, rh);
         }
-        // Curve
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.55));
         gc.setLineWidth(2);
         gc.beginPath();
@@ -305,16 +306,13 @@ public class Dashboard extends StackPane {
         gc.stroke();
     }
 
-    // ── 3. Linear Algebra: two rotating vectors and their projection ──────────
+    // ── 3. Linear Algebra ────────────────────────────────────────────────────
     private void drawLinearAlgebra(GraphicsContext gc, Color accent, AnimState s) {
         double cx = CARD_W * 0.72, cy = CARD_H * 0.5, r = 55;
-        // Rotating vector A
         double axA = cx + r * Math.cos(s.t * 0.7);
         double ayA = cy + r * Math.sin(s.t * 0.7);
-        // Fixed vector B at a diagonal
         double axB = cx + r * Math.cos(0.8);
         double ayB = cy + r * Math.sin(0.8);
-        // Draw projection dashed line
         double dot = (axA-cx)*(axB-cx) + (ayA-cy)*(ayB-cy);
         double bLen2 = (axB-cx)*(axB-cx) + (ayB-cy)*(ayB-cy);
         double projX = cx + dot / bLen2 * (axB - cx);
@@ -323,17 +321,12 @@ public class Dashboard extends StackPane {
         gc.setLineWidth(1); gc.setLineDashes(4, 4);
         gc.strokeLine(axA, ayA, projX, projY);
         gc.setLineDashes();
-        // projection dot
         gc.setFill(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.5));
         gc.fillOval(projX - 4, projY - 4, 8, 8);
-        // Vector A (rotating, bright)
         drawArrow(gc, cx, cy, axA, ayA, accent, 0.7, 2.5);
-        // Vector B (fixed, dimmer)
         drawArrow(gc, cx, cy, axB, ayB, accent, 0.35, 1.5);
-        // origin dot
         gc.setFill(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.5));
         gc.fillOval(cx - 4, cy - 4, 8, 8);
-        // Grid lines behind
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.07));
         gc.setLineWidth(0.5);
         for (double gx = 10; gx < CARD_W; gx += 22) gc.strokeLine(gx, 0, gx, CARD_H);
@@ -353,11 +346,11 @@ public class Dashboard extends StackPane {
             new double[]{y2, y2 - al*Math.sin(angle-0.4), y2 - al*Math.sin(angle+0.4)}, 3);
     }
 
-    // ── 4. Statistics: scatter dots forming a regression line ─────────────────
+    // ── 4. Statistics ────────────────────────────────────────────────────────
     private void drawStatistics(GraphicsContext gc, Color accent, AnimState s) {
         if (s.points == null) {
             s.points = new ArrayList<>();
-            Random rng = new Random(7);
+            java.util.Random rng = new java.util.Random(7);
             for (int i = 0; i < 22; i++) {
                 double xv = rng.nextDouble();
                 double yv = 0.2 + 0.6 * xv + (rng.nextDouble() - 0.5) * 0.25;
@@ -365,18 +358,15 @@ public class Dashboard extends StackPane {
             }
         }
         double padL = 25, padT = 18, pW = CARD_W - padL - 15, pH = CARD_H - padT - 22;
-        // Axes
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.2));
         gc.setLineWidth(1);
         gc.strokeLine(padL, padT + pH, padL + pW, padT + pH);
         gc.strokeLine(padL, padT, padL, padT + pH);
-        // Regression line (animates in)
         double prog = Math.min(1.0, s.t / 3.0);
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.5 * prog));
         gc.setLineWidth(2);
         gc.strokeLine(padL, padT + pH * (1 - (0.2 + 0.0)*prog),
                 padL + pW * prog, padT + pH * (1 - (0.2 + 0.6)*prog));
-        // Dots
         for (int i = 0; i < s.points.size(); i++) {
             double[] pt = s.points.get(i);
             double appear = Math.min(1.0, Math.max(0, s.t - i * 0.12));
@@ -385,7 +375,6 @@ public class Dashboard extends StackPane {
             double alpha = 0.55 * appear;
             gc.setFill(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), alpha));
             gc.fillOval(sx - 4, sy - 4, 8, 8);
-            // residual line
             double predY = padT + pH - (0.2 + 0.6 * pt[0]) * pH;
             gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.15 * appear));
             gc.setLineWidth(1);
@@ -393,39 +382,32 @@ public class Dashboard extends StackPane {
         }
     }
 
-    // ── 5. Trigonometry: spinning unit circle with radius arm ─────────────────
+    // ── 5. Trigonometry ──────────────────────────────────────────────────────
     private void drawTrigonometry(GraphicsContext gc, Color accent, AnimState s) {
         double cx = CARD_W * 0.68, cy = CARD_H * 0.5, r = 52;
-        // Axes
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.2));
         gc.setLineWidth(1);
         gc.strokeLine(cx - r - 8, cy, cx + r + 8, cy);
         gc.strokeLine(cx, cy - r - 8, cx, cy + r + 8);
-        // Circle
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.3));
         gc.setLineWidth(1.5);
         gc.strokeOval(cx - r, cy - r, r * 2, r * 2);
-        // Rotating radius
         double angle = s.t * 0.9;
         double hx = cx + r * Math.cos(angle);
         double hy = cy - r * Math.sin(angle);
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.75));
         gc.setLineWidth(2);
         gc.strokeLine(cx, cy, hx, hy);
-        // Sine projection (vertical dashed line)
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.4));
         gc.setLineDashes(4, 4); gc.setLineWidth(1.2);
         gc.strokeLine(hx, hy, hx, cy);
         gc.setLineDashes();
-        // Cosine projection (horizontal dashed line)
         gc.setStroke(new Color(accent.getRed()+0.1, accent.getGreen(), accent.getBlue(), 0.3));
         gc.setLineDashes(4, 4); gc.setLineWidth(1.2);
         gc.strokeLine(hx, cy, cx, cy);
         gc.setLineDashes();
-        // Handle dot
         gc.setFill(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.85));
         gc.fillOval(hx - 5, hy - 5, 10, 10);
-        // Trailing sine wave on the right
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.4));
         gc.setLineWidth(1.5);
         gc.beginPath();
@@ -437,22 +419,19 @@ public class Dashboard extends StackPane {
             if (i == 0) gc.moveTo(wx, wy); else gc.lineTo(wx, wy);
         }
         gc.stroke();
-        // theta label
         gc.setFill(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.45));
         gc.setFont(Font.font("Monospace", FontWeight.BOLD, 13));
         gc.fillText("θ", cx + 12, cy - 5);
     }
 
-    // ── 6. Algebra: animated parabola + function labels scrolling ─────────────
+    // ── 6. Algebra ───────────────────────────────────────────────────────────
     private void drawAlgebra(GraphicsContext gc, Color accent, AnimState s) {
         double padL = 30, padT = 18, pW = CARD_W - padL - 15, pH = CARD_H - padT - 25;
-        // Axes
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.2));
         gc.setLineWidth(1);
         gc.strokeLine(padL, padT + pH, padL + pW, padT + pH);
         gc.strokeLine(padL, padT, padL, padT + pH);
         gc.strokeLine(padL + pW / 2, padT, padL + pW / 2, padT + pH);
-        // Animated parabola (shift parameter oscillates)
         double shift = Math.sin(s.t * 0.6) * 0.3;
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.6));
         gc.setLineWidth(2);
@@ -466,7 +445,6 @@ public class Dashboard extends StackPane {
             if (i == 0) gc.moveTo(sx, sy); else gc.lineTo(sx, sy);
         }
         gc.stroke();
-        // Second curve: sine
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.3));
         gc.setLineWidth(1.5);
         gc.beginPath();
@@ -478,7 +456,6 @@ public class Dashboard extends StackPane {
             if (i == 0) gc.moveTo(sx, sy); else gc.lineTo(sx, sy);
         }
         gc.stroke();
-        // Floating equation labels
         String[] eqs = {"y=x²","f(x)","ax+b","y=|x|"};
         for (int i = 0; i < eqs.length; i++) {
             double ey = (padT + 12) + i * 26 + 8 * Math.sin(s.t * 0.5 + i * 1.3);
@@ -489,11 +466,10 @@ public class Dashboard extends StackPane {
         }
     }
 
-    // ── 7. Fourier / Signal Processing: sine waves combining ──────────────────
+    // ── 7. Fourier ───────────────────────────────────────────────────────────
     private void drawFourier(GraphicsContext gc, Color accent, AnimState s) {
         double midY = CARD_H * 0.5;
         double ampScale = CARD_H * 0.35;
-        // Individual harmonics (faint)
         int harmonics = 5;
         for (int k = 1; k <= harmonics; k++) {
             double alpha = 0.08 + 0.04 / k;
@@ -507,7 +483,6 @@ public class Dashboard extends StackPane {
             }
             gc.stroke();
         }
-        // Combined wave (bright)
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.65));
         gc.setLineWidth(2.2);
         gc.beginPath();
@@ -520,7 +495,6 @@ public class Dashboard extends StackPane {
             if (i == 0) gc.moveTo(x, y); else gc.lineTo(x, y);
         }
         gc.stroke();
-        // Spinning epicycle on the right
         double ecx = CARD_W * 0.85, ecy = CARD_H * 0.5, er = 22;
         gc.setStroke(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.25));
         gc.setLineWidth(1);
@@ -534,15 +508,14 @@ public class Dashboard extends StackPane {
         gc.fillOval(ehx - 4, ehy - 4, 8, 8);
     }
 
-    // ── 8. Chaos Game / Mathematical Marvels: Sierpiński dots appearing ────────
+    // ── 8. Chaos ─────────────────────────────────────────────────────────────
     private void drawChaos(GraphicsContext gc, Color accent, AnimState s) {
         if (s.chaosPoints == null) {
             s.chaosPoints = new ArrayList<>();
-            // pre-generate Sierpiński chaos-game points
             double px = CARD_W * 0.5, py = CARD_H * 0.1;
             double[] vx = {CARD_W*0.15, CARD_W*0.85, CARD_W*0.5};
             double[] vy = {CARD_H*0.92, CARD_H*0.92, CARD_H*0.08};
-            Random rng = new Random(17);
+            java.util.Random rng = new java.util.Random(17);
             for (int i = 0; i < 1800; i++) {
                 int v = rng.nextInt(3);
                 px = (px + vx[v]) / 2;
@@ -557,7 +530,6 @@ public class Dashboard extends StackPane {
             gc.setFill(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), alpha));
             gc.fillRect(pt[0], pt[1], 1.8, 1.8);
         }
-        // Loop: reset when all shown
         if (visible >= s.chaosPoints.size()) s.t = 0;
     }
 
@@ -571,7 +543,6 @@ public class Dashboard extends StackPane {
 
         void reset() {
             t = 0;
-            // keep pre-generated lists for chaos/stats to avoid GC jitter
         }
     }
 
@@ -580,7 +551,6 @@ public class Dashboard extends StackPane {
             (int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255), alpha);
     }
 
-    /** Simple opacity animation via AnimationTimer tick. */
     private void fadeCanvas(Canvas c, double from, double to, long durationMs) {
         final long[] start = {-1};
         c.setOpacity(from);

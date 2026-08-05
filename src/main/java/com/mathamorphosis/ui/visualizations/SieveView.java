@@ -185,13 +185,13 @@ public class SieveView extends BorderPane {
         rulesHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6868a0;");
 
         Label rule1 = new Label("• A Prime Number has exactly 2 factors: 1 and itself.");
-        rule1.setStyle("-fx-font-size: 14px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;");
+        rule1.setStyle("-fx-font-size: 16px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;");
         Label rule2 = new Label("• 1 is excluded (it has only 1 factor).");
-        rule2.setStyle("-fx-font-size: 14px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;");
+        rule2.setStyle("-fx-font-size: 16px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;");
         Label rule3 = new Label("• We only need to check prime multiples up to √100 = 10.");
-        rule3.setStyle("-fx-font-size: 14px; -fx-text-fill: #d4a84b; -fx-font-weight: bold; -fx-wrap-text: true;");
+        rule3.setStyle("-fx-font-size: 16px; -fx-text-fill: #d4a84b; -fx-font-weight: bold; -fx-wrap-text: true;");
         Label rule4 = new Label("• Every remaining un-eliminated number is guaranteed prime!");
-        rule4.setStyle("-fx-font-size: 14px; -fx-text-fill: #4cbf95; -fx-font-weight: bold; -fx-wrap-text: true;");
+        rule4.setStyle("-fx-font-size: 16px; -fx-text-fill: #4cbf95; -fx-font-weight: bold; -fx-wrap-text: true;");
 
         VBox rulesCard = new VBox(10, rulesHeader, rule1, rule2, rule3, rule4);
         rulesCard.setPadding(new Insets(16));
@@ -217,6 +217,8 @@ public class SieveView extends BorderPane {
 
         primesCountLabel.setText(String.valueOf(primeCount));
         eliminatedCountLabel.setText(eliminatedCount + " / 100");
+
+        stepTitleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #5ba8e0;");
 
         switch (phase) {
             case INIT:
@@ -244,6 +246,7 @@ public class SieveView extends BorderPane {
                 statusBadgeLabel.setText("PRIME FOUND");
                 statusBadgeLabel.setStyle("-fx-background-color: #223c32; -fx-text-fill: #4cbf95; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Prime Discovered: " + currentPrime);
+                stepTitleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + toHex(primeColors[getPrimeIndex(currentPrime)]) + ";");
                 stepDescLabel.setText(currentPrime + " is prime! Next, we will jump through the grid to eliminate all multiples of " + currentPrime + ".");
                 break;
 
@@ -251,6 +254,7 @@ public class SieveView extends BorderPane {
                 statusBadgeLabel.setText("SWEEPING MULTIPLES");
                 statusBadgeLabel.setStyle("-fx-background-color: #4a3c22; -fx-text-fill: #d4a84b; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 6;");
                 stepTitleLabel.setText("Eliminating Multiples of " + currentPrime);
+                stepTitleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + toHex(primeColors[getPrimeIndex(currentPrime)]) + ";");
                 stepDescLabel.setText("Bouncing to " + currentMultiple + " (" + currentPrime + " × " + (currentMultiple / currentPrime) + "). Since it's divisible by " + currentPrime + ", it is marked composite.");
                 break;
 
@@ -627,6 +631,11 @@ public class SieveView extends BorderPane {
         if (p == 5) return 2;
         if (p == 7) return 3;
         return 0; // fallback
+    }
+
+    private String toHex(Color c) {
+        return String.format("#%02x%02x%02x",
+            (int)(c.getRed() * 255), (int)(c.getGreen() * 255), (int)(c.getBlue() * 255));
     }
 
     private class Cell {

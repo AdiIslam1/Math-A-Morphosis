@@ -214,7 +214,7 @@ public class RiemannView extends BorderPane {
     // ── Right Panel ───────────────────────────────────────────────────────────
 
     private void buildRightPanel() {
-        VBox panel = new VBox(16);
+        VBox panel = new VBox(18);
         panel.setPrefWidth(270);
         panel.setPadding(new Insets(20, 16, 20, 16));
         panel.setStyle(

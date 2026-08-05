@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.mathamorphosis.ui.ModuleLayoutController"
+            styleClass="root">
+    <top>
+        <Button fx:id="backBtn" text="&lt; Back to Dashboard"
+                styleClass="back-button"
+                onAction="#handleBack">
+            <BorderPane.margin>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </BorderPane.margin>
+        </Button>
+    </top>
+    <center>
+        <!-- Content pane: view nodes are set here programmatically by the controller -->
+        <StackPane fx:id="contentPane"
+                   style="-fx-background-color: transparent;"/>
+    </center>
+</BorderPane>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.mathamorphosis.ui.visualizations.ChaosGameViewController"
+           fx:id="rootPane"
+           style="-fx-background-color: #0c0c1e;">
+</StackPane>
