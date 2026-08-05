@@ -1,10 +1,148 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.mathamorphosis.ui.visualizations.LeastSquaresViewController"
-           fx:id="rootPane"
-           style="-fx-background-color: #0c0c1e;">
-</StackPane>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.mathamorphosis.ui.visualizations.LeastSquaresViewController"
+            style="-fx-background-color: #0c0c1e;">
+
+    <!-- ═══════════════════ CENTER: Chart + Controls ═══════════════════ -->
+    <center>
+        <VBox alignment="CENTER" spacing="14"
+              style="-fx-background-color: #0c0c1e;">
+            <padding><Insets top="16" right="24" bottom="16" left="24"/></padding>
+
+            <Label text="Least Squares Regression Sandbox"
+                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;"/>
+
+            <Label fx:id="instructionLabel"
+                   text="Click anywhere on the grid to add data points. Drag them to adjust."
+                   style="-fx-font-size: 16px; -fx-text-fill: #6868a0;"/>
+
+            <!-- Chart pane — fixed size, drawn into programmatically -->
+            <Pane fx:id="gridPane" minWidth="750" minHeight="520"
+                  prefWidth="1000" prefHeight="680" maxWidth="1000" maxHeight="680"
+                  style="-fx-background-color: #1c1c38; -fx-background-radius: 12px;
+                         -fx-border-color: #32325a; -fx-border-radius: 12px; -fx-border-width: 2px;"/>
+
+            <!-- Toolbar -->
+            <HBox alignment="CENTER" spacing="24">
+                <padding><Insets top="14" bottom="10"/></padding>
+                <ToggleButton fx:id="userGuessToggle" text="1. Draw Your Guess Line"
+                              style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #b0b0d0;
+                                     -fx-background-color: #22224a; -fx-padding: 12px 24px;
+                                     -fx-background-radius: 8px; -fx-cursor: hand;"/>
+                <Button fx:id="calcBestFitBtn" text="2. Calculate Best Fit"
+                        style="-fx-font-size: 15px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;
+                               -fx-background-color: #22224a; -fx-padding: 12px 24px;
+                               -fx-border-color: #5ba8e0; -fx-border-radius: 8px;
+                               -fx-border-width: 2px; -fx-cursor: hand;"/>
+                <ToggleButton fx:id="showErrorsToggle" text="3. Show Error Squares"
+                              style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #b0b0d0;
+                                     -fx-background-color: #22224a; -fx-padding: 12px 24px;
+                                     -fx-background-radius: 8px; -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <!-- ═══════════════════ RIGHT: Statistics Panel ═══════════════════ -->
+    <right>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    minWidth="360" prefWidth="420" maxWidth="420"
+                    style="-fx-background: #14142a; -fx-background-color: #14142a;
+                           -fx-border-color: #32325a; -fx-border-radius: 12px;
+                           -fx-background-radius: 12px; -fx-border-width: 2px;">
+
+            <VBox spacing="16" style="-fx-background-color: #14142a;">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+                <Label text="STATISTICS &amp; CONTROLS"
+                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0; -fx-letter-spacing: 2;"/>
+
+                <!-- What Is This -->
+                <VBox spacing="12"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #d4a84b;
+                             -fx-border-width: 0 0 0 4; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                    <Label text="Least Squares Regression"
+                           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #d4a84b;"/>
+                    <Label text="Place data points and find the single straight line that minimises the total squared vertical distance from every point to the line."
+                           wrapText="true"
+                           style="-fx-font-size: 16px; -fx-text-fill: #d0d0e8; -fx-line-spacing: 3;"/>
+                </VBox>
+
+                <!-- The Formula -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                    <Label text="THE FORMULA"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
+                    <Label text="ŷ = mx + b"
+                           style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #d4a84b; -fx-font-family: 'Courier New', monospace;"/>
+                    <Label text="m = Σ(xᵢ − x̄)(yᵢ − ȳ) / Σ(xᵢ − x̄)²"
+                           wrapText="true"
+                           style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="b = ȳ − m·x̄"
+                           style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="Where x̄, ȳ are the means of x and y"
+                           style="-fx-font-size: 13px; -fx-text-fill: #6868a0; -fx-font-style: italic;"/>
+                </VBox>
+
+                <!-- Live Results -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                    <Label text="LIVE RESULTS"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
+                    <Label fx:id="livePointCount" text="Data Points: 0"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;"/>
+                    <Label fx:id="liveSlopeLabel" text="m (slope) = —"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4cbf95;"/>
+                    <Label fx:id="liveInterceptLabel" text="b (intercept) = —"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #5ba8e0;"/>
+                    <Label fx:id="liveEquationLabel" text="ŷ = —"
+                           style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #d4a84b;"/>
+                </VBox>
+
+                <!-- How To Use -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                    <Label text="HOW TO USE"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
+                    <Label text="1. Click grid to place data points"  wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="2. Draw your guess line first"        wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="3. Hit Calculate Best Fit to see the math" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="4. Toggle error squares to visualise residuals" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="5. Drag points to watch line react live" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                </VBox>
+
+                <!-- Real World Uses -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                    <Label text="REAL WORLD USES"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
+                    <Label text="📈 Predicting stock trends"         style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="🏥 Medical dosage modelling"        style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="🌡 Climate change analysis"         style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="🚗 Fuel efficiency estimation"      style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </right>
+
+</BorderPane>

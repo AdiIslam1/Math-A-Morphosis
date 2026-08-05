@@ -1,10 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.mathamorphosis.ui.visualizations.SieveViewController"
-           fx:id="rootPane"
-           style="-fx-background-color: #0c0c1e;">
-</StackPane>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.mathamorphosis.ui.visualizations.SieveViewController"
+            style="-fx-background-color: #0c0c1e;">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <!-- ═══════════════════ CENTER: Canvas + Controls ═══════════════════ -->
+    <center>
+        <VBox alignment="CENTER" spacing="15">
+
+            <Label text="Sieve of Eratosthenes"
+                   style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;"/>
+
+            <!-- Fixed-size canvas: 600×600 (10 cols × 60px each) -->
+            <Canvas fx:id="canvas" width="600" height="600"/>
+
+            <HBox alignment="CENTER" spacing="15">
+                <Button fx:id="startBtn"   text="▶  Start"   styleClass="back-button"/>
+                <Button fx:id="pauseBtn"   text="⏸  Pause"   styleClass="back-button"/>
+                <Button fx:id="restartBtn" text="⟳  Restart" styleClass="back-button"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <!-- ═══════════════════ RIGHT: Explanation Panel ═══════════════════ -->
+    <right>
+        <VBox spacing="20" prefWidth="420"
+              style="-fx-background-color: #14142a; -fx-border-color: #32325a; -fx-border-width: 0 0 0 1;">
+            <padding><Insets top="16" right="24" bottom="24" left="24"/></padding>
+
+            <Label text="📌 INSTRUCTIONS &amp; EXPLANATION"
+                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0; -fx-letter-spacing: 1.2px;"/>
+
+            <!-- Live Step Tracker Card -->
+            <VBox spacing="10"
+                  style="-fx-background-color: #1c1c38; -fx-border-color: #5ba8e0;
+                         -fx-border-width: 0 0 0 4; -fx-border-radius: 0 8 8 0; -fx-background-radius: 8;">
+                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+
+                <Label fx:id="statusBadgeLabel" text="READY"
+                       style="-fx-background-color: #22224a; -fx-text-fill: #5ba8e0;
+                              -fx-font-size: 12px; -fx-font-weight: bold;
+                              -fx-padding: 4 10; -fx-background-radius: 6;"/>
+                <Label fx:id="stepTitleLabel" text="Initialization"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #5ba8e0;"/>
+                <Label fx:id="stepDescLabel"
+                       text="Press Start to begin the algorithm. Watch how prime numbers are discovered and composite numbers are sieved out."
+                       style="-fx-font-size: 15px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true; -fx-line-spacing: 3px;"/>
+            </VBox>
+
+            <!-- Live Algorithm Metrics -->
+            <VBox spacing="10"
+                  style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                         -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
+                <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+                <Label text="📊 LIVE ALGORITHM METRICS"
+                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
+
+                <HBox spacing="12">
+                    <!-- Primes Discovered -->
+                    <VBox alignment="CENTER" spacing="2"
+                          style="-fx-background-color: #141428; -fx-background-radius: 6;"
+                          HBox.hgrow="ALWAYS">
+                        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                        <Label fx:id="primesCountLabel" text="0"
+                               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4cbf95;"/>
+                        <Label text="Primes Discovered"
+                               style="-fx-font-size: 12px; -fx-text-fill: #8080b0;"/>
+                    </VBox>
+
+                    <!-- Numbers Sieved -->
+                    <VBox alignment="CENTER" spacing="2"
+                          style="-fx-background-color: #141428; -fx-background-radius: 6;"
+                          HBox.hgrow="ALWAYS">
+                        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                        <Label fx:id="eliminatedCountLabel" text="0"
+                               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #d46b6b;"/>
+                        <Label text="Numbers Sieved"
+                               style="-fx-font-size: 12px; -fx-text-fill: #8080b0;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Mathematical Concept Rules -->
+            <VBox spacing="10"
+                  style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                         -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
+                <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+                <Label text="💡 MATHEMATICAL CONCEPT"
+                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
+                <Label text="• A Prime Number has exactly 2 factors: 1 and itself."
+                       style="-fx-font-size: 16px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;"/>
+                <Label text="• 1 is excluded (it has only 1 factor)."
+                       style="-fx-font-size: 16px; -fx-text-fill: #d0d0e8; -fx-wrap-text: true;"/>
+                <Label text="• We only need to check prime multiples up to √100 = 10."
+                       style="-fx-font-size: 16px; -fx-text-fill: #d4a84b; -fx-font-weight: bold; -fx-wrap-text: true;"/>
+                <Label text="• Every remaining un-eliminated number is guaranteed prime!"
+                       style="-fx-font-size: 16px; -fx-text-fill: #4cbf95; -fx-font-weight: bold; -fx-wrap-text: true;"/>
+            </VBox>
+        </VBox>
+    </right>
+
+</BorderPane>

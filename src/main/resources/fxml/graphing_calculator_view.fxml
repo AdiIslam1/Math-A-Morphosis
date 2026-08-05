@@ -1,10 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.mathamorphosis.ui.visualizations.GraphingCalculatorViewController"
-           fx:id="rootPane"
-           style="-fx-background-color: #0c0c1e;">
-</StackPane>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.mathamorphosis.ui.visualizations.GraphingCalculatorViewController"
+            style="-fx-background-color: #14142a;">
+
+    <!-- ═══════════════════ LEFT: Functions panel ═══════════════════ -->
+    <left>
+        <VBox spacing="15" prefWidth="300"
+              style="-fx-background-color: #100f28; -fx-border-color: #32325a; -fx-border-width: 0 2px 0 0;">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+            <Label text="Functions"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #ffffff;"/>
+
+            <!-- Dynamically populated function rows live here -->
+            <ScrollPane fx:id="functionsScroll" fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background: #100f28; -fx-background-color: transparent; -fx-border-color: transparent;">
+                <VBox fx:id="functionsBox" spacing="10"/>
+            </ScrollPane>
+
+            <Button fx:id="addFuncBtn" text="+ Add Function" maxWidth="Infinity"
+                    style="-fx-font-size: 14px; -fx-text-fill: #5ba8e0; -fx-font-weight: bold;
+                           -fx-background-color: #1c1c38; -fx-border-color: #5ba8e0;
+                           -fx-border-radius: 5px; -fx-cursor: hand;"/>
+        </VBox>
+    </left>
+
+    <!-- ═══════════════════ CENTER: Graph pane ═══════════════════ -->
+    <center>
+        <!-- The graph pane is built entirely in the controller (grid, axes, curves, overlays) -->
+        <Pane fx:id="graphPane" style="-fx-background-color: #14142a;"/>
+    </center>
+
+</BorderPane>

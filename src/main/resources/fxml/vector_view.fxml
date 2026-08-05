@@ -1,10 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.mathamorphosis.ui.visualizations.VectorViewController"
-           fx:id="rootPane"
-           style="-fx-background-color: #0c0c1e;">
-</StackPane>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.mathamorphosis.ui.visualizations.VectorViewController"
+            style="-fx-background-color: #0c0c1e;">
+
+    <!-- ═══════════════════ CENTER: Canvas + Controls ═══════════════════ -->
+    <center>
+        <VBox alignment="CENTER" spacing="0"
+              style="-fx-background-color: #0c0c1e;">
+
+            <Canvas fx:id="canvas" width="800" height="600"/>
+
+            <HBox alignment="CENTER" spacing="15">
+                <padding><Insets top="10" bottom="10"/></padding>
+                <Button fx:id="startBtn"   text="▶ Start"   styleClass="back-button"/>
+                <Button fx:id="pauseBtn"   text="⏸ Pause"   styleClass="back-button"/>
+                <Button fx:id="restartBtn" text="↺ Restart" styleClass="back-button"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <!-- ═══════════════════ RIGHT: Info Panel ═══════════════════ -->
+    <right>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background: transparent; -fx-background-color: transparent;">
+            <VBox spacing="16" prefWidth="400" minWidth="400" maxWidth="400"
+                  style="-fx-background-color: #14142a; -fx-border-color: #32325a; -fx-border-width: 0 0 0 1;">
+                <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+                <Label text="LINEAR ALGEBRA"
+                       style="-fx-text-fill: #6868a0; -fx-font-size: 13px; -fx-font-weight: bold; -fx-letter-spacing: 1.5;"/>
+
+                <!-- Concept card -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #5ba8e0;
+                             -fx-border-width: 0 0 0 4; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                    <Label text="Vector Projection"
+                           style="-fx-text-fill: #5ba8e0; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <Label text="Projection shows how much of vector A lies in the direction of vector B. Drag the arrow tips to explore."
+                           wrapText="true"
+                           style="-fx-text-fill: #d0d0e8; -fx-font-size: 15px;"/>
+                </VBox>
+
+                <!-- Formulae card -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <Label text="FORMULAE"
+                           style="-fx-text-fill: #6868a0; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                    <Label text="proj_B(A) = (A·B / |B|²) × B"
+                           style="-fx-text-fill: #d4a84b; -fx-font-size: 17px; -fx-font-weight: bold; -fx-font-family: 'Courier New', monospace;"/>
+                    <Label text="A·B = Ax·Bx + Ay·By"
+                           style="-fx-text-fill: #b0b0d0; -fx-font-size: 14px; -fx-font-family: 'Courier New', monospace;"/>
+                    <Label text="|B|² = Bx² + By²"
+                           style="-fx-text-fill: #b0b0d0; -fx-font-size: 14px; -fx-font-family: 'Courier New', monospace;"/>
+                </VBox>
+
+                <!-- Live readings card -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <Label text="LIVE READINGS"
+                           style="-fx-text-fill: #6868a0; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                    <Label fx:id="vectorALabel" text="A = (100.0, -150.0)"
+                           style="-fx-text-fill: #f97316; -fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Courier New', monospace;"/>
+                    <Label fx:id="vectorBLabel" text="B = (200.0, 0.0)"
+                           style="-fx-text-fill: #5ba8e0; -fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Courier New', monospace;"/>
+                    <Label fx:id="dotProductLabel" text="A · B = ..."
+                           style="-fx-text-fill: #4cbf95; -fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Courier New', monospace;"/>
+                    <Label fx:id="projLabel" text="proj = (...)"
+                           style="-fx-text-fill: #d4a84b; -fx-font-size: 15px; -fx-font-family: 'Courier New', monospace;"/>
+                </VBox>
+
+                <!-- Colour guide card -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <Label text="COLOUR GUIDE"
+                           style="-fx-text-fill: #6868a0; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="●" style="-fx-text-fill: #f97316; -fx-font-size: 16px; -fx-min-width: 18;"/>
+                        <Label text="Vector A (draggable, rotates)" wrapText="true"
+                               style="-fx-text-fill: #8080b0; -fx-font-size: 13px;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="●" style="-fx-text-fill: #5ba8e0; -fx-font-size: 16px; -fx-min-width: 18;"/>
+                        <Label text="Vector B (draggable anchor)" wrapText="true"
+                               style="-fx-text-fill: #8080b0; -fx-font-size: 13px;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="●" style="-fx-text-fill: #d4a84b; -fx-font-size: 16px; -fx-min-width: 18;"/>
+                        <Label text="Projection of A onto B" wrapText="true"
+                               style="-fx-text-fill: #8080b0; -fx-font-size: 13px;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="●" style="-fx-text-fill: #6868a0; -fx-font-size: 16px; -fx-min-width: 18;"/>
+                        <Label text="Perpendicular drop line" wrapText="true"
+                               style="-fx-text-fill: #8080b0; -fx-font-size: 13px;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Interaction tips card -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <Label text="INTERACTION"
+                           style="-fx-text-fill: #6868a0; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    <Label text="• Drag the white tip of Vector A (orange) to rotate it"
+                           wrapText="true" style="-fx-text-fill: #b0b0d0; -fx-font-size: 13px;"/>
+                    <Label text="• Drag the white tip of Vector B (blue) to reorient"
+                           wrapText="true" style="-fx-text-fill: #b0b0d0; -fx-font-size: 13px;"/>
+                    <Label text="• Use ▶ Start to auto-rotate Vector A continuously"
+                           wrapText="true" style="-fx-text-fill: #b0b0d0; -fx-font-size: 13px;"/>
+                    <Label text="• Watch the projection update in real time"
+                           wrapText="true" style="-fx-text-fill: #b0b0d0; -fx-font-size: 13px;"/>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </right>
+
+</BorderPane>
