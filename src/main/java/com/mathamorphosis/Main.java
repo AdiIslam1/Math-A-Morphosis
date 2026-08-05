@@ -1,18 +1,16 @@
 package com.mathamorphosis;
 
-import com.mathamorphosis.ui.Dashboard;
+import com.mathamorphosis.ui.DashboardController;
+import com.mathamorphosis.ui.ModuleLayoutController;
+import com.mathamorphosis.ui.StartupScreenController;
 import javafx.application.Application;
-import javafx.geometry.Pos;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.geometry.Insets;
+
+import java.io.IOException;
 
 public class Main extends Application {
 
@@ -40,73 +38,58 @@ public class Main extends Application {
     }
 
     private void showStartupScreen() {
-        com.mathamorphosis.ui.StartupScreen startup = new com.mathamorphosis.ui.StartupScreen(this::showDashboard, 1280, 720);
-        rootNode.getChildren().setAll(startup);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/startup_screen.fxml"));
+            Node view = loader.load();
+            StartupScreenController controller = loader.getController();
+            controller.setOnStart(this::showDashboard);
+            rootNode.getChildren().setAll(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showDashboard() {
-        Dashboard dashboard = new Dashboard(this::loadModule);
-        rootNode.getChildren().setAll(dashboard);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
+            Node view = loader.load();
+            DashboardController controller = loader.getController();
+            controller.setOnModuleSelect(this::loadModule);
+            rootNode.getChildren().setAll(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadModule(String moduleId) {
-        BorderPane moduleLayout = new BorderPane();
-        moduleLayout.getStyleClass().add("root");
-        moduleLayout.setPadding(new Insets(20));
+        try {
+            FXMLLoader layoutLoader = new FXMLLoader(getClass().getResource("/fxml/module_layout.fxml"));
+            Node moduleLayout = layoutLoader.load();
+            ModuleLayoutController layoutController = layoutLoader.getController();
+            layoutController.setOnBack(this::showDashboard);
 
-        // Top nav with back button
-        Button backBtn = new Button("< Back to Dashboard");
-        backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(e -> showDashboard());
-        moduleLayout.setTop(backBtn);
-        BorderPane.setMargin(backBtn, new Insets(0, 0, 20, 0));
+            String fxmlFile = "";
+            switch (moduleId) {
+                case "NUMBER_THEORY": fxmlFile = "/fxml/sieve_view.fxml"; break;
+                case "CALCULUS": fxmlFile = "/fxml/riemann_view.fxml"; break;
+                case "LINEAR_ALGEBRA": fxmlFile = "/fxml/vector_view.fxml"; break;
+                case "LEAST_SQUARES": fxmlFile = "/fxml/least_squares_view.fxml"; break;
+                case "UNIT_CIRCLE": fxmlFile = "/fxml/unit_circle_view.fxml"; break;
+                case "GRAPHING_CALC": fxmlFile = "/fxml/graphing_calculator_view.fxml"; break;
+                case "FOURIER_SERIES": fxmlFile = "/fxml/fourier_series_view.fxml"; break;
+                case "CHAOS_GAME": fxmlFile = "/fxml/chaos_game_view.fxml"; break;
+            }
 
-        // Module content container
-        VBox content = new VBox();
-        content.setAlignment(Pos.CENTER);
+            if (!fxmlFile.isEmpty()) {
+                FXMLLoader viewLoader = new FXMLLoader(getClass().getResource(fxmlFile));
+                Node view = viewLoader.load();
+                layoutController.setContent(view);
+            }
 
-        // Wrap content in a transparent ScrollPane to prevent overflow on all devices
-        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(content);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setStyle(
-                "-fx-background: transparent;" +
-                "-fx-background-color: transparent;" +
-                "-fx-viewport-background-color: transparent;" +
-                "-fx-border-width: 0;"
-        );
-
-        moduleLayout.setCenter(scrollPane);
-
-        if (moduleId.equals("NUMBER_THEORY")) {
-            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.SieveView());
-        } else if (moduleId.equals("CALCULUS")) {
-            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.RiemannView());
-        } else if (moduleId.equals("LINEAR_ALGEBRA")) {
-            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.VectorView());
-        } else if (moduleId.equals("LEAST_SQUARES")) {
-            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.LeastSquaresView());
-        } else if (moduleId.equals("UNIT_CIRCLE")) {
-            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.UnitCircleView());
-        } else if (moduleId.equals("GRAPHING_CALC")) {
-            content.getChildren().setAll(new com.mathamorphosis.ui.visualizations.GraphingCalculatorView());
-        } else if (moduleId.equals("FOURIER_SERIES")) {
-            com.mathamorphosis.ui.visualizations.FourierSeriesView fourierView =
-                    new com.mathamorphosis.ui.visualizations.FourierSeriesView();
-            VBox.setVgrow(fourierView, Priority.ALWAYS);
-            fourierView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-            content.getChildren().setAll(fourierView);
-        } else if (moduleId.equals("CHAOS_GAME")) {
-            com.mathamorphosis.ui.visualizations.ChaosGameView chaosView =
-                    new com.mathamorphosis.ui.visualizations.ChaosGameView();
-            VBox.setVgrow(chaosView, Priority.ALWAYS);
-            chaosView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-            content.getChildren().setAll(chaosView);
+            rootNode.getChildren().setAll(moduleLayout);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        rootNode.getChildren().setAll(moduleLayout);
     }
 
     public static void main(String[] args) {

@@ -138,8 +138,8 @@ public class ChaosGameView extends BorderPane {
     }
 
     private void buildRightPanel() {
-        VBox panel = new VBox(16);
-        panel.setPadding(new Insets(20));
+        VBox panel = new VBox(18);
+        panel.setPadding(new Insets(20, 20, 20, 20));
         panel.setAlignment(Pos.TOP_CENTER);
         panel.setPrefWidth(320);
         panel.setStyle("-fx-background-color:#1c1c38;");
@@ -157,6 +157,7 @@ public class ChaosGameView extends BorderPane {
         // ── Dice display area ───────────────────────────────────────────────
         dicePane   = new Pane();
         diceCanvas = new Canvas(120, 120);
+        dicePane.setMinSize(120, 120);
         dicePane.setPrefSize(120, 120);
         dicePane.setMaxSize(120, 120);
         dicePane.setStyle("-fx-background-color:transparent;");
@@ -164,7 +165,9 @@ public class ChaosGameView extends BorderPane {
         drawDiceFace(6); // default
 
         StackPane diceCenterer = new StackPane(dicePane);
+        diceCenterer.setMinSize(120, 120);
         diceCenterer.setAlignment(Pos.CENTER);
+        VBox.setMargin(diceCenterer, new Insets(10, 0, 10, 0));
 
         // diceResultLabel is built in buildCenter() as a canvas bottom strip
 

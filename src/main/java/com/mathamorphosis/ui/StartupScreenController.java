@@ -5,6 +5,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -19,7 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class StartupScreen extends StackPane {
+public class StartupScreenController {
+
+    @FXML
+    private StackPane rootPane;
 
     private Canvas canvas;
     private GraphicsContext gc;
@@ -37,19 +41,19 @@ public class StartupScreen extends StackPane {
         Color.web("#4ab8c4")  // Teal
     };
     private Random random = new Random();
+    private Runnable onStart;
 
-    public StartupScreen(Runnable onStart, double width, double height) {
-        this.getStyleClass().add("root");
-
+    @FXML
+    public void initialize() {
         // 1. Background Animation Canvas bound to container size
         canvas = new Canvas();
-        canvas.widthProperty().bind(this.widthProperty());
-        canvas.heightProperty().bind(this.heightProperty());
+        canvas.widthProperty().bind(rootPane.widthProperty());
+        canvas.heightProperty().bind(rootPane.heightProperty());
         gc = canvas.getGraphicsContext2D();
 
         particles = new ArrayList<>();
-        double initW = width > 0 ? width : 1280;
-        double initH = height > 0 ? height : 720;
+        double initW = 1280;
+        double initH = 720;
         for (int i = 0; i < NUM_PARTICLES; i++) {
             particles.add(new Particle(initW, initH));
         }
@@ -90,21 +94,27 @@ public class StartupScreen extends StackPane {
 
         contentBox.getChildren().addAll(title, prompt);
 
-        this.getChildren().addAll(canvas, contentBox);
+        rootPane.getChildren().addAll(canvas, contentBox);
 
         // 3. Transition interaction
-        this.setOnMouseClicked(e -> {
+        rootPane.setOnMouseClicked(e -> {
             // Disable clicks immediately
-            this.setDisable(true);
+            rootPane.setDisable(true);
             timer.stop();
             
             // Fade out the entire StackPane
-            FadeTransition ft = new FadeTransition(Duration.millis(800), this);
+            FadeTransition ft = new FadeTransition(Duration.millis(800), rootPane);
             ft.setFromValue(1.0);
             ft.setToValue(0.0);
-            ft.setOnFinished(evt -> onStart.run());
+            ft.setOnFinished(evt -> {
+                if (onStart != null) onStart.run();
+            });
             ft.play();
         });
+    }
+
+    public void setOnStart(Runnable onStart) {
+        this.onStart = onStart;
     }
 
     private void draw(double width, double height) {
@@ -128,7 +138,6 @@ public class StartupScreen extends StackPane {
 
                 if (dist < 160) {
                     double alpha = 1.0 - (dist / 160.0);
-                    // Create a gradient-like effect using p1's color
                     gc.setStroke(new Color(p1.color.getRed(), p1.color.getGreen(), p1.color.getBlue(), alpha * 0.5));
                     gc.strokeLine(p1.x, p1.y, p2.x, p2.y);
                 }
@@ -163,7 +172,6 @@ public class StartupScreen extends StackPane {
             radius = random.nextDouble() * 3 + 1.5;
             color = PALETTE[random.nextInt(PALETTE.length)];
 
-            // 15% chance to be a math symbol instead of a dot
             if (random.nextDouble() < 0.15) {
                 symbol = SYMBOLS[random.nextInt(SYMBOLS.length)];
             }
@@ -173,7 +181,6 @@ public class StartupScreen extends StackPane {
             x += vx;
             y += vy;
 
-            // Bounce off walls dynamically
             if (x < 0) { x = 0; vx = -vx; }
             if (x > w) { x = w; vx = -vx; }
             if (y < 0) { y = 0; vy = -vy; }

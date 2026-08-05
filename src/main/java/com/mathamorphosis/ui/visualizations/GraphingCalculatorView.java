@@ -130,13 +130,17 @@ public class GraphingCalculatorView extends BorderPane {
         graphPane.setClip(clip);
         
         graphPane.widthProperty().addListener((obs, oldV, newV) -> {
+            double oldW = WIDTH;
             WIDTH = newV.doubleValue();
+            offsetX += (WIDTH - oldW) / 2;
             drawGridAndAxes();
             plotFunctions();
         });
         
         graphPane.heightProperty().addListener((obs, oldV, newV) -> {
+            double oldH = HEIGHT;
             HEIGHT = newV.doubleValue();
+            offsetY += (HEIGHT - oldH) / 2;
             drawGridAndAxes();
             plotFunctions();
         });
