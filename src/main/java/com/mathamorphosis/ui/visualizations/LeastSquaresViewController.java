@@ -6,6 +6,7 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
@@ -13,7 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
@@ -35,9 +36,12 @@ public class LeastSquaresViewController {
     @FXML private ToggleButton showErrorsToggle;
 
     @FXML private Label livePointCount;
-    @FXML private Label liveSlopeLabel;
-    @FXML private Label liveInterceptLabel;
     @FXML private Label liveEquationLabel;
+    @FXML private Label liveLeastSquareSumLabel;
+    
+    @FXML private TextField coordXInput;
+    @FXML private TextField coordYInput;
+    @FXML private Button    plotBtn;
 
     // ── Coordinate system constants ──────────────────────────────────────────
     private static final double WIDTH   = 1000;
@@ -51,13 +55,15 @@ public class LeastSquaresViewController {
     // ── State ────────────────────────────────────────────────────────────────
     private final List<Circle>    dataPoints   = new ArrayList<>();
     private final List<Line>      errorLines   = new ArrayList<>();
-    private final List<Rectangle> errorSquares = new ArrayList<>();
+    private final List<Polygon> errorSquares = new ArrayList<>();
 
     private Line    userGuessLine  = null;
     private Line    bestFitLine    = null;
     private boolean bestFitActive  = false;
     private int     userGuessClicks = 0;
     private double  guessX1, guessY1;
+    
+    private Text    hoverText;
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -65,6 +71,13 @@ public class LeastSquaresViewController {
     public void initialize() {
         drawAxesAndGrid();
         gridPane.setOnMouseClicked(this::handleGridClick);
+
+        hoverText = new Text();
+        hoverText.setFill(Color.WHITE);
+        hoverText.setFont(Font.font("Segoe UI", javafx.scene.text.FontWeight.BOLD, 14));
+        hoverText.setVisible(false);
+        hoverText.setEffect(new DropShadow(3, Color.BLACK));
+        gridPane.getChildren().add(hoverText);
 
         userGuessToggle.setOnAction(e -> {
             if (!userGuessToggle.isSelected()) {
@@ -89,6 +102,20 @@ public class LeastSquaresViewController {
             "-fx-border-color: #5ba8e0; -fx-border-radius: 8px;" +
             "-fx-border-width: 2px; -fx-cursor: hand;"
         ));
+
+        plotBtn.setOnAction(e -> {
+            try {
+                double mx = Double.parseDouble(coordXInput.getText());
+                double my = Double.parseDouble(coordYInput.getText());
+                if (mx >= 0 && mx <= X_MAX && my >= 0 && my <= Y_MAX) {
+                    addPoint(mx, my);
+                } else {
+                    instructionLabel.setText("Coordinates must be between 0 and 20.");
+                }
+            } catch (NumberFormatException ex) {
+                instructionLabel.setText("Invalid coordinate format.");
+            }
+        });
 
         showErrorsToggle.setOnAction(e -> updateVisuals());
     }
@@ -187,12 +214,26 @@ public class LeastSquaresViewController {
         point.setCursor(javafx.scene.Cursor.HAND);
         point.setEffect(new DropShadow(8, Color.web("#facc15")));
 
-        point.setOnMouseEntered(e -> point.setRadius(10));
-        point.setOnMouseExited(e  -> point.setRadius(8));
+        point.setOnMouseEntered(e -> {
+            point.setRadius(10);
+            hoverText.setText(String.format("(%.2f, %.2f)", toMathX(point.getCenterX()), toMathY(point.getCenterY())));
+            hoverText.setX(point.getCenterX() + 15);
+            hoverText.setY(point.getCenterY() - 15);
+            hoverText.toFront();
+            hoverText.setVisible(true);
+        });
+        point.setOnMouseExited(e  -> {
+            point.setRadius(8);
+            hoverText.setVisible(false);
+        });
         point.setOnMouseDragged(e -> {
             double nx = Math.max(MARGIN, Math.min(WIDTH - MARGIN,  e.getX()));
             double ny = Math.max(MARGIN, Math.min(HEIGHT - MARGIN, e.getY()));
             point.setCenterX(nx); point.setCenterY(ny);
+            hoverText.setText(String.format("(%.2f, %.2f)", toMathX(nx), toMathY(ny)));
+            hoverText.setX(nx + 15);
+            hoverText.setY(ny - 15);
+            hoverText.toFront();
             updateVisuals();
         });
 
@@ -238,9 +279,16 @@ public class LeastSquaresViewController {
         double m = den == 0 ? 0 : num / den;
         double b = meanY - m * meanX;
 
-        liveSlopeLabel.setText(String.format("m (slope) = %.4f", m));
-        liveInterceptLabel.setText(String.format("b (intercept) = %.4f", b));
         liveEquationLabel.setText(String.format("ŷ = %.4fx + %.4f", m, b));
+
+        double ssr = 0;
+        for (int i = 0; i < dataPoints.size(); i++) {
+            double predictedY = m * mXs.get(i) + b;
+            ssr += Math.pow(mYs.get(i) - predictedY, 2);
+        }
+        if (liveLeastSquareSumLabel != null) {
+            liveLeastSquareSumLabel.setText(String.format("Sum: %.4f", ssr));
+        }
 
         if (bestFitLine == null) {
             bestFitLine = new Line();
@@ -257,29 +305,50 @@ public class LeastSquaresViewController {
         errorLines.clear(); errorSquares.clear();
 
         if (showErrorsToggle.isSelected()) {
+            double startX = toScreenX(0);
+            double startY = toScreenY(b);
+            double endX = toScreenX(X_MAX);
+            double endY = toScreenY(m * X_MAX + b);
+            double dx = endX - startX;
+            double dy = endY - startY;
+            double len2 = dx * dx + dy * dy;
+
             for (Circle c : dataPoints) {
                 double cx = c.getCenterX(), cy = c.getCenterY();
-                double lineY = toScreenY(m * toMathX(cx) + b);
+                
+                double px = cx, py = cy;
+                if (len2 > 0) {
+                    double t = ((cx - startX) * dx + (cy - startY) * dy) / len2;
+                    px = startX + t * dx;
+                    py = startY + t * dy;
+                }
 
-                Line errLine = new Line(cx, cy, cx, lineY);
+                Line errLine = new Line(cx, cy, px, py);
                 errLine.setStroke(Color.web("#f43f5e"));
                 errLine.setStrokeWidth(2);
                 errLine.getStrokeDashArray().addAll(5d, 5d);
                 errorLines.add(errLine);
 
-                double dist = Math.abs(cy - lineY);
+                double dist = Math.hypot(px - cx, py - cy);
                 if (dist > 0) {
-                    Rectangle rect = new Rectangle(cx, Math.min(cy, lineY), dist, dist);
-                    rect.setFill(Color.web("#f43f5e", 0.2));
-                    rect.setStroke(Color.web("#f43f5e"));
-                    rect.setStrokeWidth(1.5);
-                    errorSquares.add(rect);
+                    Polygon square = new Polygon();
+                    square.getPoints().addAll(
+                        px, py,
+                        cx, cy,
+                        cx - (cy - py), cy + (cx - px),
+                        px - (cy - py), py + (cx - px)
+                    );
+                    square.setFill(Color.web("#f43f5e", 0.2));
+                    square.setStroke(Color.web("#f43f5e"));
+                    square.setStrokeWidth(1.5);
+                    errorSquares.add(square);
                 }
             }
             gridPane.getChildren().addAll(errorSquares);
             gridPane.getChildren().addAll(errorLines);
             bestFitLine.toFront();
             dataPoints.forEach(javafx.scene.Node::toFront);
+            if (hoverText != null) hoverText.toFront();
         }
     }
 

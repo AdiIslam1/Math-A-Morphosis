@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -80,6 +81,25 @@
                            style="-fx-font-size: 16px; -fx-text-fill: #d0d0e8; -fx-line-spacing: 3;"/>
                 </VBox>
 
+                <!-- Add Coordinate -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                    <Label text="ADD COORDINATE"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="X:" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                        <TextField fx:id="coordXInput" text="0" prefWidth="60"
+                               style="-fx-background-color: #22224a; -fx-text-fill: #f0f0f8; -fx-border-color: #5ba8e0; -fx-border-radius: 4; -fx-background-radius: 4;"/>
+                        <Label text="Y:" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                        <TextField fx:id="coordYInput" text="0" prefWidth="60"
+                               style="-fx-background-color: #22224a; -fx-text-fill: #f0f0f8; -fx-border-color: #5ba8e0; -fx-border-radius: 4; -fx-background-radius: 4;"/>
+                        <Button fx:id="plotBtn" text="Plot"
+                                style="-fx-background-color: #5ba8e0; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 4; -fx-cursor: hand;"/>
+                    </HBox>
+                </VBox>
+
                 <!-- The Formula -->
                 <VBox spacing="10"
                       style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
@@ -107,40 +127,24 @@
                            style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
                     <Label fx:id="livePointCount" text="Data Points: 0"
                            style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;"/>
-                    <Label fx:id="liveSlopeLabel" text="m (slope) = —"
-                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4cbf95;"/>
-                    <Label fx:id="liveInterceptLabel" text="b (intercept) = —"
-                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #5ba8e0;"/>
                     <Label fx:id="liveEquationLabel" text="ŷ = —"
                            style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #d4a84b;"/>
                 </VBox>
 
-                <!-- How To Use -->
-                <VBox spacing="8"
-                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
+                <!-- Least Square Sum -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #1c1c38; -fx-border-color: #f43f5e;
                              -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
                     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-                    <Label text="HOW TO USE"
-                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
-                    <Label text="1. Click grid to place data points"  wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                    <Label text="2. Draw your guess line first"        wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                    <Label text="3. Hit Calculate Best Fit to see the math" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                    <Label text="4. Toggle error squares to visualise residuals" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                    <Label text="5. Drag points to watch line react live" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
+                    <Label text="LEAST SQUARES SUM"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #f43f5e;"/>
+                    <Label fx:id="liveLeastSquareSumLabel" text="Sum: —"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #f0f0f8;"/>
+                    <Label text="(Sum of squared vertical distances, which this line minimizes)"
+                           wrapText="true"
+                           style="-fx-font-size: 13px; -fx-text-fill: #b0b0d0; -fx-font-style: italic;"/>
                 </VBox>
 
-                <!-- Real World Uses -->
-                <VBox spacing="8"
-                      style="-fx-background-color: #1c1c38; -fx-border-color: #32325a;
-                             -fx-border-width: 1; -fx-background-radius: 8; -fx-border-radius: 8;">
-                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-                    <Label text="REAL WORLD USES"
-                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6868a0;"/>
-                    <Label text="📈 Predicting stock trends"         style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                    <Label text="🏥 Medical dosage modelling"        style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                    <Label text="🌡 Climate change analysis"         style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                    <Label text="🚗 Fuel efficiency estimation"      style="-fx-font-size: 15px; -fx-text-fill: #b0b0d0;"/>
-                </VBox>
             </VBox>
         </ScrollPane>
     </right>
